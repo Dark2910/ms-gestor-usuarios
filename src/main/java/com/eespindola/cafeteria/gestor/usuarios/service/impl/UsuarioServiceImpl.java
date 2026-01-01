@@ -2,7 +2,6 @@ package com.eespindola.cafeteria.gestor.usuarios.service.impl;
 
 import com.eespindola.cafeteria.gestor.usuarios.dao.repository.UsuarioRepository;
 import com.eespindola.cafeteria.gestor.usuarios.exception.impl.Error404;
-import com.eespindola.cafeteria.gestor.usuarios.exception.impl.Error500;
 import com.eespindola.cafeteria.gestor.usuarios.mapper.UsuarioMapper;
 import com.eespindola.cafeteria.gestor.usuarios.model.Usuario;
 import com.eespindola.cafeteria.gestor.usuarios.model.Result;

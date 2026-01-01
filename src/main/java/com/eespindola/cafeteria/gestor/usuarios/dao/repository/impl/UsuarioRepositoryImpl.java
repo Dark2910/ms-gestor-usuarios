@@ -6,20 +6,26 @@ import com.eespindola.cafeteria.gestor.usuarios.model.dto.UsuarioDto;
 import com.eespindola.cafeteria.gestor.usuarios.util.DataBaseUtil;
 import com.eespindola.cafeteria.gestor.usuarios.util.FechasUtil;
 import com.eespindola.cafeteria.gestor.usuarios.util.FolioGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
+import oracle.jdbc.OracleConnection;
+import oracle.jdbc.OracleTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.SqlOutParameter;
-import org.springframework.jdbc.core.SqlParameter;
+import org.springframework.jdbc.core.*;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.lang.reflect.Type;
 import java.sql.*;
+import java.sql.Date;
 import java.util.*;
 
+@Slf4j
 @Repository
 public class UsuarioRepositoryImpl implements UsuarioRepository {
 
@@ -36,78 +42,135 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
 
   @Override
   public List<UsuarioDto> getAll() {
-    final String USUARIO_GET_ALL = "SELECT * FROM VW_Usuario";
-    try (
-            Connection connection = jdbcTemplate.getDataSource().getConnection();
-            CallableStatement callableStatement = connection.prepareCall(USUARIO_GET_ALL);
-    ) {
-      ResultSet resultSet = callableStatement.executeQuery();
-      List<UsuarioDto> usuarioDtoList = new ArrayList<>();
+    final String USUARIO_GET_ALL = "{CALL SP_UsuarioGetAll(?, ?, ?)}";
+    try {
+      return jdbcTemplate.execute(USUARIO_GET_ALL, (CallableStatementCallback<List<UsuarioDto>>) callableStatement -> {
+        callableStatement.registerOutParameter("pCodigo", OracleTypes.NUMERIC);
+        callableStatement.registerOutParameter("pMensaje", OracleTypes.VARCHAR);
+        callableStatement.registerOutParameter("pCursor", OracleTypes.CURSOR);
+        callableStatement.execute();
 
-      while (resultSet.next()) {
-        UsuarioDto usuarioDto = UsuarioDto.builder()
-                .idUsuario(resultSet.getInt("IDUSUARIO"))
-                .folioId(resultSet.getString("FOLIO"))
-                .nombre(resultSet.getString("NOMBRE"))
-                .apellidoPaterno(resultSet.getString("APELLIDOPATERNO"))
-                .apellidoMaterno(resultSet.getString("APELLIDOMATERNO"))
-                .fechaNacimiento(resultSet.getDate("FECHANACIMIENTO").toLocalDate())
-                .username(resultSet.getString("USERNAME"))
-                .email(resultSet.getString("EMAIL"))
-                .password(resultSet.getString("PASSWORD"))
-                .status(resultSet.getString("STATUS"))
-                .build();
-        usuarioDtoList.add(usuarioDto);
-      }
-      return usuarioDtoList;
-    } catch (SQLException e) {
-      throw new Error500(List.of("Error al insertar en DB"));
+        Integer code = callableStatement.getInt("pCodigo");
+        String message = callableStatement.getString("pMensaje");
+
+        List<UsuarioDto> usuarioDtoList = new LinkedList<>();
+        UsuarioDto usuarioDto;
+
+        try(ResultSet resultSet = (ResultSet) callableStatement.getObject("pCursor")){
+          while (resultSet.next()){
+            usuarioDto = UsuarioDto.builder()
+                    .folioId(resultSet.getString("FOLIO"))
+                    .nombre(resultSet.getString("NOMBRE"))
+                    .apellidoPaterno(resultSet.getString("APELLIDOPATERNO"))
+                    .apellidoMaterno(resultSet.getString("APELLIDOMATERNO"))
+                    .fechaNacimiento(resultSet.getDate("FECHANACIMIENTO").toLocalDate())
+                    .username(resultSet.getString("USERNAME"))
+                    .email(resultSet.getString("EMAIL"))
+                    .password(resultSet.getString("PASSWORD"))
+                    .status(resultSet.getString("STATUS"))
+                    .build();
+            usuarioDtoList.add(usuarioDto);
+          }
+        }
+        return usuarioDtoList;
+      });
+    } catch (Throwable e) {
+      throw new Error500(List.of("Error al consultar usuarios."));
     }
   }
 
   @Override
   public UsuarioDto getByFolio(String folio) {
-    final String USUARIO_GET_BY_FOLIO =
-            "SELECT IDUSUARIO, FOLIO, NOMBRE, APELLIDOPATERNO, APELLIDOMATERNO, FECHANACIMIENTO, USERNAME, EMAIL, PASSWORD, STATUS " +
-                    "FROM USUARIO " +
-                    "WHERE FOLIO = ?";
+    final String USUARIO_GET_BY_FOLIO = "{CALL SP_UsuarioGetByFolio(?, ?, ?, ?)}";
+    try {
+      return jdbcTemplate.execute(USUARIO_GET_BY_FOLIO, (CallableStatementCallback<UsuarioDto>) callableStatement -> {
+        callableStatement.setString(1, folio);
+        callableStatement.registerOutParameter(2, OracleTypes.NUMERIC);
+        callableStatement.registerOutParameter(3, OracleTypes.VARCHAR);
+        callableStatement.registerOutParameter(4, OracleTypes.CURSOR);
+        callableStatement.execute();
 
-//    jdbcTemplate.query(USUARIO_GET_BY_FOLIO, new UsuarioMapper(), folio).getFirst();
+        Integer code = callableStatement.getInt(2);
+        String message = callableStatement.getString(3);
 
-    return jdbcTemplate.query(USUARIO_GET_BY_FOLIO, (rs, rowNum) -> UsuarioDto.builder()
-            .idUsuario(rs.getInt("IDUSUARIO"))
-            .folioId(rs.getString("FOLIO"))
-            .nombre(rs.getString("NOMBRE"))
-            .apellidoPaterno(rs.getString("APELLIDOPATERNO"))
-            .apellidoMaterno(rs.getString("APELLIDOMATERNO"))
-            .fechaNacimiento(rs.getDate("FECHANACIMIENTO").toLocalDate())
-            .username(rs.getString("USERNAME"))
-            .email(rs.getString("EMAIL"))
-            .password(rs.getString("PASSWORD"))
-            .status(rs.getString("STATUS"))
-            .build(), folio).getFirst();
+        UsuarioDto usuarioDto = new UsuarioDto();
+
+        try (ResultSet resultSet = (ResultSet) callableStatement.getObject(4)) {
+          if (resultSet.next()) {
+            usuarioDto = UsuarioDto.builder()
+                    .folioId(resultSet.getString("FOLIO"))
+                    .nombre(resultSet.getString("NOMBRE"))
+                    .apellidoPaterno(resultSet.getString("APELLIDOPATERNO"))
+                    .apellidoMaterno(resultSet.getString("APELLIDOMATERNO"))
+                    .fechaNacimiento(resultSet.getDate("FECHANACIMIENTO").toLocalDate())
+                    .username(resultSet.getString("USERNAME"))
+                    .email(resultSet.getString("EMAIL"))
+                    .password(resultSet.getString("PASSWORD"))
+                    .status(resultSet.getString("STATUS"))
+                    .build();
+          }
+        }
+        return usuarioDto;
+      });
+    } catch (Throwable e) {
+      throw new Error500(List.of("Error al consultar usuario."));
+    }
   }
 
   @Override
   public void addUsuario(UsuarioDto usuarioDto) {
-    final String USUARIO_INSERT = "{CALL SP_UsuarioInsert(?,?,?,?,?,?,?,?)}";
-    try (
-            Connection connection = jdbcTemplate.getDataSource().getConnection();
-            CallableStatement callableStatement = connection.prepareCall(USUARIO_INSERT);
-    ) {
-      callableStatement.setString("pFolio", FolioGenerator.getFolio());
-      callableStatement.setString("pNombre", usuarioDto.getNombre());
-      callableStatement.setString("pApellidoPaterno", usuarioDto.getApellidoPaterno());
-      callableStatement.setString("pApellidoMaterno", usuarioDto.getApellidoMaterno());
-      callableStatement.setString("pFechaNacimiento", FechasUtil.toString(FechasUtil.FORMAT_1, usuarioDto.getFechaNacimiento()));
-      callableStatement.setString("pUsername", usuarioDto.getUsername());
-      callableStatement.setString("pEmail", usuarioDto.getEmail());
-      callableStatement.setString("pPassword", usuarioDto.getPassword());
+    final String USUARIO_INSERT = "{CALL SP_UsuarioInsert(?,?,?)}";
+    try{
+      jdbcTemplate.execute(USUARIO_INSERT, (CallableStatementCallback<Integer>) callableStatement ->{
 
-      callableStatement.executeQuery();
-    } catch (SQLException e) {
+        OracleConnection oracleConnection = callableStatement.getConnection().unwrap(OracleConnection.class);
+        Object[] atributos = new Object[]{
+                usuarioDto.getFolioId(),
+                usuarioDto.getNombre(),
+                usuarioDto.getApellidoPaterno(),
+                usuarioDto.getApellidoMaterno(),
+                Date.valueOf( usuarioDto.getFechaNacimiento()),
+                usuarioDto.getUsername(),
+                usuarioDto.getEmail(),
+                usuarioDto.getPassword(),
+                usuarioDto.getStatus()
+        };
+        Struct structUsuarioType = oracleConnection.createStruct("EESPINDOLAORQUESTADOR.USUARIO_TYPE", atributos);
+        callableStatement.setObject(1, structUsuarioType, OracleTypes.STRUCT);
+
+        callableStatement.registerOutParameter(2, Types.NUMERIC);
+        callableStatement.registerOutParameter(3, Types.VARCHAR);
+        callableStatement.execute();
+
+        Integer code = callableStatement.getInt(2);
+        String message = callableStatement.getString(3);
+
+        System.out.println("Código: " + code + ", Mensaje: " + message);
+        return code;
+      });
+    }catch (Throwable e){
       throw new Error500(List.of("Error al insertar en DB"));
     }
+
+
+
+//    try (
+//            Connection connection = jdbcTemplate.getDataSource().getConnection();
+//            CallableStatement callableStatement = connection.prepareCall(USUARIO_INSERT);
+//    ) {
+//      callableStatement.setString("pFolio", FolioGenerator.getFolio());
+//      callableStatement.setString("pNombre", usuarioDto.getNombre());
+//      callableStatement.setString("pApellidoPaterno", usuarioDto.getApellidoPaterno());
+//      callableStatement.setString("pApellidoMaterno", usuarioDto.getApellidoMaterno());
+//      callableStatement.setString("pFechaNacimiento", FechasUtil.toString(FechasUtil.FORMAT_1, usuarioDto.getFechaNacimiento()));
+//      callableStatement.setString("pUsername", usuarioDto.getUsername());
+//      callableStatement.setString("pEmail", usuarioDto.getEmail());
+//      callableStatement.setString("pPassword", usuarioDto.getPassword());
+//
+//      callableStatement.executeQuery();
+//    } catch (SQLException e) {
+//      throw new Error500(List.of("Error al insertar en DB"));
+//    }
   }
 
   @Override
@@ -153,13 +216,13 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
     final String USUARIO_DELETE = "{CALL SP_UsuarioDelete(?,?)}";
 
     return jdbcTemplate.execute((Connection connection) -> {
-      try(CallableStatement callableStatement = connection.prepareCall(USUARIO_DELETE)){
+      try (CallableStatement callableStatement = connection.prepareCall(USUARIO_DELETE)) {
         callableStatement.setString("pFolio", usuarioDto.getFolioId());
         callableStatement.registerOutParameter("pResultado", Types.NUMERIC);
         callableStatement.execute();
 
         return (Number) callableStatement.getObject("pResultado");
-      } catch (Throwable e){
+      } catch (Throwable e) {
         throw new Error500(List.of("Error al eliminar usuario en DB"));
       }
     });
