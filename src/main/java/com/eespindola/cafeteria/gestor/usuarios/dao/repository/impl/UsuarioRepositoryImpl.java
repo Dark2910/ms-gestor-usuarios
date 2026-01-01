@@ -3,16 +3,13 @@ package com.eespindola.cafeteria.gestor.usuarios.dao.repository.impl;
 import com.eespindola.cafeteria.gestor.usuarios.dao.repository.UsuarioRepository;
 import com.eespindola.cafeteria.gestor.usuarios.exception.impl.Error500;
 import com.eespindola.cafeteria.gestor.usuarios.model.dto.UsuarioDto;
+import com.eespindola.cafeteria.gestor.usuarios.util.Constantes;
 import com.eespindola.cafeteria.gestor.usuarios.util.DataBaseUtil;
-import com.eespindola.cafeteria.gestor.usuarios.util.FechasUtil;
-import com.eespindola.cafeteria.gestor.usuarios.util.FolioGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import oracle.jdbc.OracleConnection;
 import oracle.jdbc.OracleTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.*;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -20,7 +17,6 @@ import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.lang.reflect.Type;
 import java.sql.*;
 import java.sql.Date;
 import java.util.*;
@@ -30,24 +26,31 @@ import java.util.*;
 public class UsuarioRepositoryImpl implements UsuarioRepository {
 
   private final JdbcTemplate jdbcTemplate;
+  private final String SCHEMA;
+  private final String PACKAGE;
 
   @Autowired
   UsuarioRepositoryImpl(
-          @Qualifier(DataBaseUtil.HIKARI_DATA_SOURCE) DataSource dataSource
 //          @Qualifier(DataBaseUtil.HIKARI_CONNECTION) JdbcTemplate jdbcTemplate
+          @Qualifier(DataBaseUtil.HIKARI_DATA_SOURCE) DataSource dataSource,
+          @Value("${oracle.usuario.schema}") String usuarioSchema,
+          @Value("${oracle.usuario.package}") String usuarioPackage
   ) {
-    this.jdbcTemplate = new JdbcTemplate(dataSource);
 //    this.jdbcTemplate = jdbcTemplate;
+    this.jdbcTemplate = new JdbcTemplate(dataSource);
+    this.SCHEMA = usuarioSchema;
+    this.PACKAGE = usuarioPackage;
   }
 
   @Override
   public List<UsuarioDto> getAll() {
-    final String USUARIO_GET_ALL = "{CALL SP_UsuarioGetAll(?, ?, ?)}";
+    final String QUERY = DataBaseUtil.generateSpCall(SCHEMA, PACKAGE, Constantes.SP_GET_ALL, 3);
     try {
-      return jdbcTemplate.execute(USUARIO_GET_ALL, (CallableStatementCallback<List<UsuarioDto>>) callableStatement -> {
+      return jdbcTemplate.execute(QUERY, (CallableStatementCallback<List<UsuarioDto>>) callableStatement -> {
         callableStatement.registerOutParameter("pCodigo", OracleTypes.NUMERIC);
         callableStatement.registerOutParameter("pMensaje", OracleTypes.VARCHAR);
         callableStatement.registerOutParameter("pCursor", OracleTypes.CURSOR);
+
         callableStatement.execute();
 
         Integer code = callableStatement.getInt("pCodigo");
@@ -81,13 +84,14 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
 
   @Override
   public UsuarioDto getByFolio(String folio) {
-    final String USUARIO_GET_BY_FOLIO = "{CALL SP_UsuarioGetByFolio(?, ?, ?, ?)}";
+    final String QUERY = DataBaseUtil.generateSpCall(SCHEMA, PACKAGE,Constantes.SP_GET_BY_FOLIO, 4);
     try {
-      return jdbcTemplate.execute(USUARIO_GET_BY_FOLIO, (CallableStatementCallback<UsuarioDto>) callableStatement -> {
+      return jdbcTemplate.execute(QUERY, (CallableStatementCallback<UsuarioDto>) callableStatement -> {
         callableStatement.setString(1, folio);
         callableStatement.registerOutParameter(2, OracleTypes.NUMERIC);
         callableStatement.registerOutParameter(3, OracleTypes.VARCHAR);
         callableStatement.registerOutParameter(4, OracleTypes.CURSOR);
+
         callableStatement.execute();
 
         Integer code = callableStatement.getInt(2);
@@ -119,31 +123,25 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
 
   @Override
   public void addUsuario(UsuarioDto usuarioDto) {
-    final String USUARIO_INSERT = "{CALL SP_UsuarioInsert(?,?,?)}";
+    final String SP_INSERT = DataBaseUtil.generateSpCall(SCHEMA, PACKAGE, Constantes.SP_INSERT, 9);
     try{
-      jdbcTemplate.execute(USUARIO_INSERT, (CallableStatementCallback<Integer>) callableStatement ->{
+      jdbcTemplate.execute(SP_INSERT, (CallableStatementCallback<Integer>) callableStatement ->{
 
-        OracleConnection oracleConnection = callableStatement.getConnection().unwrap(OracleConnection.class);
-        Object[] atributos = new Object[]{
-                usuarioDto.getFolioId(),
-                usuarioDto.getNombre(),
-                usuarioDto.getApellidoPaterno(),
-                usuarioDto.getApellidoMaterno(),
-                Date.valueOf( usuarioDto.getFechaNacimiento()),
-                usuarioDto.getUsername(),
-                usuarioDto.getEmail(),
-                usuarioDto.getPassword(),
-                usuarioDto.getStatus()
-        };
-        Struct structUsuarioType = oracleConnection.createStruct("EESPINDOLAORQUESTADOR.USUARIO_TYPE", atributos);
-        callableStatement.setObject(1, structUsuarioType, OracleTypes.STRUCT);
+        callableStatement.setString(1, usuarioDto.getNombre());
+        callableStatement.setString(2, usuarioDto.getApellidoPaterno());
+        callableStatement.setString(3, usuarioDto.getApellidoMaterno());
+        callableStatement.setDate(4, Date.valueOf(usuarioDto.getFechaNacimiento()));
+        callableStatement.setString(5, usuarioDto.getUsername());
+        callableStatement.setString(6, usuarioDto.getEmail());
+        callableStatement.setString(7, usuarioDto.getPassword());
 
-        callableStatement.registerOutParameter(2, Types.NUMERIC);
-        callableStatement.registerOutParameter(3, Types.VARCHAR);
+        callableStatement.registerOutParameter(8, Types.NUMERIC);
+        callableStatement.registerOutParameter(9, Types.VARCHAR);
+
         callableStatement.execute();
 
-        Integer code = callableStatement.getInt(2);
-        String message = callableStatement.getString(3);
+        Integer code = callableStatement.getInt(8);
+        String message = callableStatement.getString(9);
 
         System.out.println("Código: " + code + ", Mensaje: " + message);
         return code;
@@ -151,34 +149,14 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
     }catch (Throwable e){
       throw new Error500(List.of("Error al insertar en DB"));
     }
-
-
-
-//    try (
-//            Connection connection = jdbcTemplate.getDataSource().getConnection();
-//            CallableStatement callableStatement = connection.prepareCall(USUARIO_INSERT);
-//    ) {
-//      callableStatement.setString("pFolio", FolioGenerator.getFolio());
-//      callableStatement.setString("pNombre", usuarioDto.getNombre());
-//      callableStatement.setString("pApellidoPaterno", usuarioDto.getApellidoPaterno());
-//      callableStatement.setString("pApellidoMaterno", usuarioDto.getApellidoMaterno());
-//      callableStatement.setString("pFechaNacimiento", FechasUtil.toString(FechasUtil.FORMAT_1, usuarioDto.getFechaNacimiento()));
-//      callableStatement.setString("pUsername", usuarioDto.getUsername());
-//      callableStatement.setString("pEmail", usuarioDto.getEmail());
-//      callableStatement.setString("pPassword", usuarioDto.getPassword());
-//
-//      callableStatement.executeQuery();
-//    } catch (SQLException e) {
-//      throw new Error500(List.of("Error al insertar en DB"));
-//    }
   }
 
   @Override
   public void updateUsuario(UsuarioDto usuarioDto) {
-    final String USUARIO_UPDATE = "SP_UsuarioUpdate";
+    final String SP_UPDATE = "EESPINDOLAORQUESTADOR.PKG_USUARIO.SP_UsuarioUpdate";
     try {
       SimpleJdbcCall simpleJdbcCall = new SimpleJdbcCall(jdbcTemplate)
-              .withProcedureName(USUARIO_UPDATE)
+              .withProcedureName(SP_UPDATE)
               .declareParameters(
                       new SqlParameter("pFolio", Types.NUMERIC),
                       new SqlParameter("pNombre", Types.VARCHAR),
@@ -212,17 +190,23 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
   }
 
   @Override
-  public Number deleteUsuario(UsuarioDto usuarioDto) {
-    final String USUARIO_DELETE = "{CALL SP_UsuarioDelete(?,?)}";
+  public Number deleteUsuario(String folio) {
+    final String QUERY = DataBaseUtil.generateSpCall(SCHEMA, PACKAGE, Constantes.SP_DELETE, 3);
 
-    return jdbcTemplate.execute((Connection connection) -> {
-      try (CallableStatement callableStatement = connection.prepareCall(USUARIO_DELETE)) {
-        callableStatement.setString("pFolio", usuarioDto.getFolioId());
-        callableStatement.registerOutParameter("pResultado", Types.NUMERIC);
+    return jdbcTemplate.execute((Connection cnn) -> {
+//      try (OracleCallableStatement callableStatement = cnn.prepareCall(QUERY).unwrap(OracleCallableStatement.class)) {
+      try (CallableStatement callableStatement = cnn.prepareCall(QUERY)) {
+        callableStatement.setString(1, folio);
+        callableStatement.registerOutParameter(2, OracleTypes.NUMERIC); // Codigo
+        callableStatement.registerOutParameter(3, OracleTypes.VARCHAR); // Message
+
         callableStatement.execute();
 
-        return (Number) callableStatement.getObject("pResultado");
-      } catch (Throwable e) {
+        Integer code = callableStatement.getInt(2);
+        String message = callableStatement.getString(3);
+
+        return code;
+      }catch (Throwable e){
         throw new Error500(List.of("Error al eliminar usuario en DB"));
       }
     });

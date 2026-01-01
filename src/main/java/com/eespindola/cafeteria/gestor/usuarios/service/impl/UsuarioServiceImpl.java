@@ -82,11 +82,9 @@ public class UsuarioServiceImpl implements UsuarioService {
   }
 
   @Override
-  public Result<Void> eliminarUsuario(Usuario usuario) {
+  public Result<Void> eliminarUsuario(String folio) {
     try{
-      UsuarioDto usuarioDto = UsuarioMapper.toUsuarioDto(usuario);
-
-      repository.deleteUsuario(usuarioDto);
+      repository.deleteUsuario(folio);
 
       return ResultBuilder.buildSuccess("Usuario eliminado", null);
     }catch (RuntimeException e){

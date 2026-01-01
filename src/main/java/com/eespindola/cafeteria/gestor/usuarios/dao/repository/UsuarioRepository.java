@@ -14,5 +14,5 @@ public interface UsuarioRepository {
 
   void updateUsuario(UsuarioDto usuarioDto);
 
-  Number deleteUsuario(UsuarioDto usuarioDto);
+  Number deleteUsuario(String folio);
 }

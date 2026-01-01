@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/usuario")
 public class UsuarioController {
@@ -54,9 +56,10 @@ public class UsuarioController {
 
   @DeleteMapping("/delete-user")
   public ResponseEntity<Result<Void>> deleteUsuarioController(
-          @RequestBody Usuario usuario
-  ){
-    Result<Void> result = service.eliminarUsuario(usuario);
+          @RequestBody Map<String, String> body
+          ){
+    String folio = body.get("folio");
+    Result<Void> result = service.eliminarUsuario(folio);
     return ResponseEntity.status(HttpStatus.OK).body(result);
   }
 

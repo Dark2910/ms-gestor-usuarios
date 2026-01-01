@@ -13,5 +13,5 @@ public interface UsuarioService {
 
   Result<Void> actualizarUsuario(Usuario usuario);
 
-  Result<Void> eliminarUsuario(Usuario usuario);
+  Result<Void> eliminarUsuario(String folio);
 }
