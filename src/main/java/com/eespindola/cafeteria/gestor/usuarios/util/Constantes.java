@@ -8,6 +8,8 @@ public class Constantes {
   public static final String SP_UPDATE = "SP_UsuarioUpdate";
   public static final String SP_DELETE = "SP_UsuarioDelete";
 
+  public static final String ENDPOINT_SEND_MESSAGE = "/telegram/bot/send-message";
+
   private Constantes(){
     throw new IllegalArgumentException("Util class");
   }
