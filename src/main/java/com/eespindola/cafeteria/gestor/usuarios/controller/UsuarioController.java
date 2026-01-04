@@ -49,7 +49,7 @@ public class UsuarioController {
   @PutMapping("/update-user")
   public ResponseEntity<Result<Void>> updateUsuarioController(
           @RequestBody Usuario usuario
-  ){
+  ) {
     Result<Void> result = service.actualizarUsuario(usuario);
     return ResponseEntity.status(HttpStatus.OK).body(result);
   }
@@ -57,7 +57,7 @@ public class UsuarioController {
   @DeleteMapping("/delete-user")
   public ResponseEntity<Result<Void>> deleteUsuarioController(
           @RequestBody Map<String, String> body
-          ){
+  ) {
     String folio = body.get("folio");
     Result<Void> result = service.eliminarUsuario(folio);
     return ResponseEntity.status(HttpStatus.OK).body(result);

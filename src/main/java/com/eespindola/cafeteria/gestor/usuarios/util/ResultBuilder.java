@@ -35,4 +35,13 @@ public class ResultBuilder {
     throw new IllegalArgumentException("Util class");
   }
 
+  public static class ResultConstants {
+
+    public static final String SUCCESS = "Operacion exitosa";
+    public static final String ERROR = "Error en operacion";
+
+    private ResultConstants(){
+      throw new IllegalArgumentException("Util class");
+    }
+  }
 }

@@ -1,6 +1,7 @@
 package com.eespindola.cafeteria.gestor.usuarios.service.impl;
 
 import com.eespindola.cafeteria.gestor.usuarios.dao.repository.UsuarioRepository;
+import com.eespindola.cafeteria.gestor.usuarios.exception.enums.ErrorEnum;
 import com.eespindola.cafeteria.gestor.usuarios.exception.impl.Error404;
 import com.eespindola.cafeteria.gestor.usuarios.mapper.UsuarioMapper;
 import com.eespindola.cafeteria.gestor.usuarios.model.Usuario;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -77,19 +79,19 @@ public class UsuarioServiceImpl implements UsuarioService {
 
       return ResultBuilder.buildSuccess("Usuario actualizado", null);
     } catch (RuntimeException e) {
-      throw new Error404(List.of("Error al agregar usuario"));
+      throw new Error404(List.of("Error al actualizar usuario"));
     }
   }
 
   @Override
   public Result<Void> eliminarUsuario(String folio) {
-    try{
-      repository.deleteUsuario(folio);
+    Number code = repository.deleteUsuario(folio);
 
-      return ResultBuilder.buildSuccess("Usuario eliminado", null);
-    }catch (RuntimeException e){
-      throw new Error404(List.of("Error al eliminar usuario"));
+    if (Objects.isNull(code) || code.intValue() == 0) {
+      throw new Error404(List.of("Usuario no encontrado"));
     }
+
+    return ResultBuilder.buildSuccess("Usuario eliminado", null);
   }
 
 }

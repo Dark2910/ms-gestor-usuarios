@@ -23,7 +23,7 @@ public class UsuarioJpaController {
 
   @GetMapping("/get-all")
   public ResponseEntity<Result<Usuario>> getAllJpaController() {
-    Result<Usuario> result = service.consultaUsuarioJpa();
+    Result<Usuario> result = service.consultaUsuariosJpa();
     return new ResponseEntity<>(result, HttpStatus.OK);
   }
 

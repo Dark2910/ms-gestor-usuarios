@@ -29,7 +29,7 @@ public class UsuarioJpaServiceImpl implements UsuarioJpaService {
   }
 
   @Override
-  public Result<Usuario> consultaUsuarioJpa() {
+  public Result<Usuario> consultaUsuariosJpa() {
     try {
       List<UsuarioEntity> usuarioEntityList = jpa.findAll();
 
