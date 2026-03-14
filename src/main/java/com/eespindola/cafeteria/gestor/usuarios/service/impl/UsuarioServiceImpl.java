@@ -1,14 +1,15 @@
 package com.eespindola.cafeteria.gestor.usuarios.service.impl;
 
 import com.eespindola.cafeteria.gestor.usuarios.dao.repository.UsuarioRepository;
-import com.eespindola.cafeteria.gestor.usuarios.exception.enums.ErrorEnum;
 import com.eespindola.cafeteria.gestor.usuarios.exception.impl.Error404;
 import com.eespindola.cafeteria.gestor.usuarios.mapper.UsuarioMapper;
-import com.eespindola.cafeteria.gestor.usuarios.model.Usuario;
+import com.eespindola.cafeteria.gestor.usuarios.model.UsuarioResponse;
 import com.eespindola.cafeteria.gestor.usuarios.model.Result;
 import com.eespindola.cafeteria.gestor.usuarios.model.dto.UsuarioDto;
 import com.eespindola.cafeteria.gestor.usuarios.service.UsuarioService;
 import com.eespindola.cafeteria.gestor.usuarios.util.ResultBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class UsuarioServiceImpl implements UsuarioService {
+  private static final Logger LOG = LoggerFactory.getLogger(UsuarioServiceImpl.class);
 
   private final UsuarioRepository repository;
 
@@ -30,37 +32,37 @@ public class UsuarioServiceImpl implements UsuarioService {
   }
 
   @Override
-  public Result<Usuario> consultarUsuarios() {
+  public Result<UsuarioResponse> consultarUsuarios() {
     try {
       List<UsuarioDto> usuarioDtoList = repository.getAll();
 
-      List<Usuario> usuarioList = usuarioDtoList.stream()
+      List<UsuarioResponse> usuarioResponseList = usuarioDtoList.stream()
               .map(UsuarioMapper::toUsuario)
               .collect(Collectors.toCollection(ArrayList::new));
 
-      return ResultBuilder.buildSuccess("Usuarios consultados", usuarioList);
+      return ResultBuilder.buildSuccess(ResultBuilder.ResultConstants.SUCCESS, usuarioResponseList);
     } catch (RuntimeException e) {
       throw new Error404(List.of("Error al consultar usuarios"));
     }
   }
 
   @Override
-  public Result<Usuario> consultarPorFolio(String folio) {
+  public Result<UsuarioResponse> consultarPorFolio(String folio) {
     try {
       UsuarioDto usuarioDto = repository.getByFolio(folio);
 
-      Usuario usuario = UsuarioMapper.toUsuario(usuarioDto);
+      UsuarioResponse usuarioResponse = UsuarioMapper.toUsuario(usuarioDto);
 
-      return ResultBuilder.buildSuccess("Usuario consultado", usuario);
+      return ResultBuilder.buildSuccess(ResultBuilder.ResultConstants.SUCCESS, usuarioResponse);
     } catch (RuntimeException e) {
       throw new Error404(List.of("Error al consultar usuario"));
     }
   }
 
   @Override
-  public Result<Void> agregarUsuario(Usuario usuario) {
+  public Result<Void> agregarUsuario(UsuarioResponse usuarioResponse) {
     try {
-      UsuarioDto usuarioDto = UsuarioMapper.toUsuarioDto(usuario);
+      UsuarioDto usuarioDto = UsuarioMapper.toUsuarioDto(usuarioResponse);
 
       repository.addUsuario(usuarioDto);
 
@@ -71,9 +73,9 @@ public class UsuarioServiceImpl implements UsuarioService {
   }
 
   @Override
-  public Result<Void> actualizarUsuario(Usuario usuario) {
+  public Result<Void> actualizarUsuario(UsuarioResponse usuarioResponse) {
     try {
-      UsuarioDto usuarioDto = UsuarioMapper.toUsuarioDto(usuario);
+      UsuarioDto usuarioDto = UsuarioMapper.toUsuarioDto(usuarioResponse);
 
       repository.updateUsuario(usuarioDto);
 

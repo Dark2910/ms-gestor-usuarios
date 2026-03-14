@@ -13,4 +13,5 @@ public class Constantes {
   private Constantes(){
     throw new IllegalArgumentException("Util class");
   }
+
 }

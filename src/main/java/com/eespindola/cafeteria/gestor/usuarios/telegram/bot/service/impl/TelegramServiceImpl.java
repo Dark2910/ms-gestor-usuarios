@@ -3,6 +3,8 @@ package com.eespindola.cafeteria.gestor.usuarios.telegram.bot.service.impl;
 import com.eespindola.cafeteria.gestor.usuarios.telegram.bot.event.UsuarioEvent;
 import com.eespindola.cafeteria.gestor.usuarios.telegram.bot.service.TelegramService;
 import com.eespindola.cafeteria.gestor.usuarios.util.Constantes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -15,6 +17,7 @@ import java.util.Map;
 @Service
 @PropertySource("classpath:telegram.properties")
 public class TelegramServiceImpl implements TelegramService {
+  private static final Logger LOG = LoggerFactory.getLogger(TelegramServiceImpl.class);
 
   private final WebClient webClient;
   private final String BASEPATH;
@@ -43,4 +46,5 @@ public class TelegramServiceImpl implements TelegramService {
             .subscribe(); // peticion asincrona
 //            .block(); // Peticion sincrona
   }
+
 }

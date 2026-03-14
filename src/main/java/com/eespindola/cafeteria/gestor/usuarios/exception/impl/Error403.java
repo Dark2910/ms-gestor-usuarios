@@ -9,4 +9,5 @@ public class Error403 extends GenericException {
   public Error403(List<String> description) {
     super(description, ErrorEnum.ERROR_403.getErrorCode());
   }
+
 }

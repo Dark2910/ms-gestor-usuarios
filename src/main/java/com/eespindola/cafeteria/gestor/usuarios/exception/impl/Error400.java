@@ -9,4 +9,5 @@ public class Error400 extends GenericException {
   public Error400(List<String> description) {
     super(description, ErrorEnum.ERROR_400.getErrorCode());
   }
+
 }

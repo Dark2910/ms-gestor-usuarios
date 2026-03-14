@@ -19,4 +19,5 @@ public class UsuarioEvent {
     String detalles = String.join("\n", errorDescription);
     return errorMessage + "\n" + detalles;
   }
+
 }

@@ -31,4 +31,5 @@ public enum ErrorEnum {
     }
     throw new IllegalArgumentException("Código de error desconocido: " + errorCode);
   }
+
 }

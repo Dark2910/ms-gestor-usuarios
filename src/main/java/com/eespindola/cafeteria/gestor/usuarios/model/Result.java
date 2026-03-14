@@ -35,4 +35,3 @@ public class Result<T> {
   private List<String> errorDescription;
 
 }
-

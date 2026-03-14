@@ -1,5 +1,6 @@
 package com.eespindola.cafeteria.gestor.usuarios.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -12,10 +13,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Usuario {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class UsuarioResponse {
 
   @JsonProperty("idUsuario")
-  private int idUsuario;
+  private Integer idUsuario;
 
   @JsonProperty("folioId")
   private String folioId;

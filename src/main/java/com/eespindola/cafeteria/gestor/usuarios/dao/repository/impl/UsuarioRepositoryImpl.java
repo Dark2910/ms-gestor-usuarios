@@ -5,8 +5,9 @@ import com.eespindola.cafeteria.gestor.usuarios.exception.impl.Error500;
 import com.eespindola.cafeteria.gestor.usuarios.model.dto.UsuarioDto;
 import com.eespindola.cafeteria.gestor.usuarios.util.Constantes;
 import com.eespindola.cafeteria.gestor.usuarios.util.DataBaseUtil;
-import lombok.extern.slf4j.Slf4j;
 import oracle.jdbc.OracleTypes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,9 +22,9 @@ import java.sql.*;
 import java.sql.Date;
 import java.util.*;
 
-@Slf4j
 @Repository
 public class UsuarioRepositoryImpl implements UsuarioRepository {
+  private static final Logger LOG = LoggerFactory.getLogger(UsuarioRepositoryImpl.class);
 
   private final JdbcTemplate jdbcTemplate;
   private final String SCHEMA;
@@ -123,9 +124,9 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
 
   @Override
   public void addUsuario(UsuarioDto usuarioDto) {
-    final String SP_INSERT = DataBaseUtil.generateSpCall(SCHEMA, PACKAGE, Constantes.SP_INSERT, 9);
+    final String QUERY = DataBaseUtil.generateSpCall(SCHEMA, PACKAGE, Constantes.SP_INSERT, 9);
     try{
-      jdbcTemplate.execute(SP_INSERT, (CallableStatementCallback<Integer>) callableStatement ->{
+      jdbcTemplate.execute(QUERY, (CallableStatementCallback<Integer>) callableStatement ->{
 
         callableStatement.setString(1, usuarioDto.getNombre());
         callableStatement.setString(2, usuarioDto.getApellidoPaterno());
@@ -153,10 +154,10 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
 
   @Override
   public void updateUsuario(UsuarioDto usuarioDto) {
-    final String SP_UPDATE = "EESPINDOLAORQUESTADOR.PKG_USUARIO.SP_UsuarioUpdate";
+    final String QUERY = "EESPINDOLAORQUESTADOR.PKG_USUARIO.SP_UsuarioUpdate";
     try {
       SimpleJdbcCall simpleJdbcCall = new SimpleJdbcCall(jdbcTemplate)
-              .withProcedureName(SP_UPDATE)
+              .withProcedureName(QUERY)
               .declareParameters(
                       new SqlParameter("pFolio", Types.NUMERIC),
                       new SqlParameter("pNombre", Types.VARCHAR),

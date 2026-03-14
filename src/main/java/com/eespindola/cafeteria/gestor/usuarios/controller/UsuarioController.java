@@ -1,7 +1,8 @@
 package com.eespindola.cafeteria.gestor.usuarios.controller;
 
+import com.eespindola.cafeteria.gestor.usuarios.annotations.AroundAop;
 import com.eespindola.cafeteria.gestor.usuarios.model.Result;
-import com.eespindola.cafeteria.gestor.usuarios.model.Usuario;
+import com.eespindola.cafeteria.gestor.usuarios.model.UsuarioResponse;
 import com.eespindola.cafeteria.gestor.usuarios.service.UsuarioService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,33 +25,34 @@ public class UsuarioController {
     this.service = usuarioService;
   }
 
+  @AroundAop
   @GetMapping("/get-all")
-  public ResponseEntity<Result<Usuario>> getAllController() {
-    Result<Usuario> result = service.consultarUsuarios();
+  public ResponseEntity<Result<UsuarioResponse>> getAllController() {
+    Result<UsuarioResponse> result = service.consultarUsuarios();
     return new ResponseEntity<>(result, HttpStatus.OK);
   }
 
   @GetMapping("/{folio}")
-  public ResponseEntity<Result<Usuario>> getByFolioController(
+  public ResponseEntity<Result<UsuarioResponse>> getByFolioController(
           @PathVariable String folio
   ) {
-    Result<Usuario> result = service.consultarPorFolio(folio);
+    Result<UsuarioResponse> result = service.consultarPorFolio(folio);
     return ResponseEntity.status(HttpStatus.OK).body(result);
   }
 
   @PostMapping("/add-user")
   public ResponseEntity<Result<Void>> addUsuarioController(
-          @Valid @RequestBody Usuario usuario
+          @Valid @RequestBody UsuarioResponse usuarioResponse
   ) {
-    Result<Void> result = service.agregarUsuario(usuario);
+    Result<Void> result = service.agregarUsuario(usuarioResponse);
     return ResponseEntity.ok(result);
   }
 
   @PutMapping("/update-user")
   public ResponseEntity<Result<Void>> updateUsuarioController(
-          @RequestBody Usuario usuario
+          @RequestBody UsuarioResponse usuarioResponse
   ) {
-    Result<Void> result = service.actualizarUsuario(usuario);
+    Result<Void> result = service.actualizarUsuario(usuarioResponse);
     return ResponseEntity.status(HttpStatus.OK).body(result);
   }
 
@@ -62,6 +64,5 @@ public class UsuarioController {
     Result<Void> result = service.eliminarUsuario(folio);
     return ResponseEntity.status(HttpStatus.OK).body(result);
   }
-
 
 }

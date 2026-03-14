@@ -3,7 +3,7 @@ package com.eespindola.cafeteria.gestor.usuarios.service;
 import com.eespindola.cafeteria.gestor.usuarios.dao.repository.UsuarioRepository;
 import com.eespindola.cafeteria.gestor.usuarios.exception.impl.Error404;
 import com.eespindola.cafeteria.gestor.usuarios.model.Result;
-import com.eespindola.cafeteria.gestor.usuarios.model.Usuario;
+import com.eespindola.cafeteria.gestor.usuarios.model.UsuarioResponse;
 import com.eespindola.cafeteria.gestor.usuarios.model.dto.UsuarioDto;
 import com.eespindola.cafeteria.gestor.usuarios.service.impl.UsuarioServiceImpl;
 import com.eespindola.cafeteria.gestor.usuarios.util.FechasUtil;
@@ -22,7 +22,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class UsuarioServiceImplTest {
+public class UsuarioResponseServiceImplTest {
 
   @InjectMocks
   private UsuarioServiceImpl service;
@@ -37,7 +37,7 @@ public class UsuarioServiceImplTest {
     makeUserDtoMock(usuarioDto);
     when(repository.getAll()).thenReturn(List.of(usuarioDto));
     // Act
-    Result<Usuario> result = service.consultarUsuarios();
+    Result<UsuarioResponse> result = service.consultarUsuarios();
     // Assert
     Assertions.assertNotNull(result);
   }
@@ -61,7 +61,7 @@ public class UsuarioServiceImplTest {
     makeUserDtoMock(usuarioDto);
     when(repository.getByFolio(anyString())).thenReturn(usuarioDto);
     // Act
-    Result<Usuario> result = service.consultarPorFolio(usuarioDto.getFolioId());
+    Result<UsuarioResponse> result = service.consultarPorFolio(usuarioDto.getFolioId());
     // Assert
     Assertions.assertNotNull(result);
   }
@@ -81,14 +81,14 @@ public class UsuarioServiceImplTest {
   @Test
   void agregarUsuarioTest() {
     // Arrange
-    Usuario usuario = makeUserMock();
+    UsuarioResponse usuarioResponse = makeUserMock();
 
     UsuarioDto usuarioDto = new UsuarioDto();
     makeUserDtoMock(usuarioDto);
 
     doNothing().when(repository).addUsuario(usuarioDto);
     // Act
-    Result<Void> result = service.agregarUsuario(usuario);
+    Result<Void> result = service.agregarUsuario(usuarioResponse);
     // Assert
     Assertions.assertNotNull(result);
   }
@@ -106,14 +106,14 @@ public class UsuarioServiceImplTest {
   @Test
   void actualizarUsuarioTest() {
     // Arrange
-    Usuario usuario = makeUserMock();
+    UsuarioResponse usuarioResponse = makeUserMock();
 
     UsuarioDto usuarioDto = new UsuarioDto();
     makeUserDtoMock(usuarioDto);
 
     doNothing().when(repository).updateUsuario(usuarioDto);
     // Act
-    Result<Void> result = service.actualizarUsuario(usuario);
+    Result<Void> result = service.actualizarUsuario(usuarioResponse);
     // Assert
     Assertions.assertNotNull(result);
   }
@@ -161,8 +161,8 @@ public class UsuarioServiceImplTest {
     usuarioDto.setStatus("statusTest");
   }
 
-  private Usuario makeUserMock() {
-    return Usuario.builder()
+  private UsuarioResponse makeUserMock() {
+    return UsuarioResponse.builder()
             .idUsuario(123)
             .folioId("folioTest")
             .nombre("nombreTest")

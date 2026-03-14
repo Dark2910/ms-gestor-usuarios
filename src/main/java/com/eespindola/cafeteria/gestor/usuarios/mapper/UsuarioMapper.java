@@ -1,6 +1,6 @@
 package com.eespindola.cafeteria.gestor.usuarios.mapper;
 
-import com.eespindola.cafeteria.gestor.usuarios.model.Usuario;
+import com.eespindola.cafeteria.gestor.usuarios.model.UsuarioResponse;
 import com.eespindola.cafeteria.gestor.usuarios.model.dto.UsuarioDto;
 import com.eespindola.cafeteria.gestor.usuarios.util.FechasUtil;
 
@@ -24,8 +24,8 @@ public class UsuarioMapper {
 //            .build();
 //  }
 
-  public static Usuario toUsuario(UsuarioDto usuarioDto) {
-    return Usuario.builder()
+  public static UsuarioResponse toUsuario(UsuarioDto usuarioDto) {
+    return UsuarioResponse.builder()
             .idUsuario(usuarioDto.getIdUsuario())
             .folioId(usuarioDto.getFolioId())
             .nombre(usuarioDto.getNombre())
@@ -39,18 +39,18 @@ public class UsuarioMapper {
             .build();
   }
 
-  public static UsuarioDto toUsuarioDto(Usuario usuario) {
+  public static UsuarioDto toUsuarioDto(UsuarioResponse usuarioResponse) {
     return UsuarioDto.builder()
-            .idUsuario(usuario.getIdUsuario())
-            .folioId(usuario.getFolioId())
-            .nombre(usuario.getNombre())
-            .apellidoPaterno(usuario.getApellidoPaterno())
-            .apellidoMaterno(usuario.getApellidoMaterno())
-            .fechaNacimiento(FechasUtil.toLocalDate(FechasUtil.FORMAT_1, usuario.getFechaNacimiento()))
-            .username(usuario.getUsername())
-            .email(usuario.getEmail())
-            .password(usuario.getPassword())
-            .status(usuario.getStatus())
+            .idUsuario(usuarioResponse.getIdUsuario())
+            .folioId(usuarioResponse.getFolioId())
+            .nombre(usuarioResponse.getNombre())
+            .apellidoPaterno(usuarioResponse.getApellidoPaterno())
+            .apellidoMaterno(usuarioResponse.getApellidoMaterno())
+            .fechaNacimiento(FechasUtil.toLocalDate(FechasUtil.FORMAT_1, usuarioResponse.getFechaNacimiento()))
+            .username(usuarioResponse.getUsername())
+            .email(usuarioResponse.getEmail())
+            .password(usuarioResponse.getPassword())
+            .status(usuarioResponse.getStatus())
             .build();
   }
 

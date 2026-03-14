@@ -44,4 +44,5 @@ public class ResultBuilder {
       throw new IllegalArgumentException("Util class");
     }
   }
+
 }

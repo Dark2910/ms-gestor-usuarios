@@ -24,4 +24,5 @@ public class GenericException extends RuntimeException implements ErrorData {
   public int getErrorCode() {
     return errorCode;
   }
+
 }

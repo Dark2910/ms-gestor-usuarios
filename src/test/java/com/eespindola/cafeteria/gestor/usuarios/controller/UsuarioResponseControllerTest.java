@@ -1,7 +1,7 @@
 package com.eespindola.cafeteria.gestor.usuarios.controller;
 
 import com.eespindola.cafeteria.gestor.usuarios.model.Result;
-import com.eespindola.cafeteria.gestor.usuarios.model.Usuario;
+import com.eespindola.cafeteria.gestor.usuarios.model.UsuarioResponse;
 import com.eespindola.cafeteria.gestor.usuarios.service.UsuarioService;
 import com.eespindola.cafeteria.gestor.usuarios.util.ResultBuilder;
 import org.junit.jupiter.api.Assertions;
@@ -23,7 +23,7 @@ import static org.mockito.Mockito.when;
         UsuarioController.class,
         UsuarioService.class
 })
-class UsuarioControllerTest {
+class UsuarioResponseControllerTest {
 
   @Autowired
   private UsuarioController controller;
@@ -34,11 +34,11 @@ class UsuarioControllerTest {
   @Test
   void getAllControllerTest() {
     // Arrange
-    Result<Usuario> result =
-            ResultBuilder.buildSuccess(ResultBuilder.ResultConstants.SUCCESS, List.of(new Usuario()));
+    Result<UsuarioResponse> result =
+            ResultBuilder.buildSuccess(ResultBuilder.ResultConstants.SUCCESS, List.of(new UsuarioResponse()));
     when(service.consultarUsuarios()).thenReturn(result);
     // Act
-    ResponseEntity<Result<Usuario>> response = controller.getAllController();
+    ResponseEntity<Result<UsuarioResponse>> response = controller.getAllController();
     // Assert
     Assertions.assertNotNull(response);
   }
@@ -46,11 +46,11 @@ class UsuarioControllerTest {
   @Test
   void getByFolioControllerTest(){
     // Arrange
-    Result<Usuario> result =
-            ResultBuilder.buildSuccess(ResultBuilder.ResultConstants.SUCCESS, new Usuario());
+    Result<UsuarioResponse> result =
+            ResultBuilder.buildSuccess(ResultBuilder.ResultConstants.SUCCESS, new UsuarioResponse());
     when(service.consultarPorFolio(anyString())).thenReturn(result);
     // Act
-    ResponseEntity<Result<Usuario>> response = controller.getByFolioController("");
+    ResponseEntity<Result<UsuarioResponse>> response = controller.getByFolioController("");
     // Assert
     Assertions.assertNotNull(response);
   }
@@ -60,9 +60,9 @@ class UsuarioControllerTest {
     // Arrange
     Result<Void> result =
             ResultBuilder.buildSuccess(ResultBuilder.ResultConstants.SUCCESS, null);
-    when(service.agregarUsuario(any(Usuario.class))).thenReturn(result);
+    when(service.agregarUsuario(any(UsuarioResponse.class))).thenReturn(result);
     // Act
-    ResponseEntity<Result<Void>> response = controller.addUsuarioController(new Usuario());
+    ResponseEntity<Result<Void>> response = controller.addUsuarioController(new UsuarioResponse());
     // Assert
     Assertions.assertNotNull(response);
   }
@@ -72,9 +72,9 @@ class UsuarioControllerTest {
     // Arrange
     Result<Void> result =
             ResultBuilder.buildSuccess(ResultBuilder.ResultConstants.SUCCESS, null);
-    when(service.actualizarUsuario(any(Usuario.class))).thenReturn(result);
+    when(service.actualizarUsuario(any(UsuarioResponse.class))).thenReturn(result);
     // Act
-    ResponseEntity<Result<Void>> response = controller.updateUsuarioController(new Usuario());
+    ResponseEntity<Result<Void>> response = controller.updateUsuarioController(new UsuarioResponse());
     // Assert
     Assertions.assertNotNull(response);
   }
