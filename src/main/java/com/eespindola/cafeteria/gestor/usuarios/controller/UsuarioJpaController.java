@@ -1,7 +1,7 @@
 package com.eespindola.cafeteria.gestor.usuarios.controller;
 
 import com.eespindola.cafeteria.gestor.usuarios.model.Result;
-import com.eespindola.cafeteria.gestor.usuarios.model.UsuarioResponse;
+import com.eespindola.cafeteria.gestor.usuarios.model.UsuarioRequest;
 import com.eespindola.cafeteria.gestor.usuarios.service.UsuarioJpaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,16 +22,16 @@ public class UsuarioJpaController {
   }
 
   @GetMapping("/get-all")
-  public ResponseEntity<Result<UsuarioResponse>> getAllJpaController() {
-    Result<UsuarioResponse> result = service.consultaUsuariosJpa();
+  public ResponseEntity<Result<UsuarioRequest>> getAllJpaController() {
+    Result<UsuarioRequest> result = service.consultaUsuariosJpa();
     return new ResponseEntity<>(result, HttpStatus.OK);
   }
 
   @GetMapping("/{folio}")
-  public ResponseEntity<Result<UsuarioResponse>> getByFolioJpaController(
+  public ResponseEntity<Result<UsuarioRequest>> getByFolioJpaController(
           @PathVariable String folio
   ) {
-    Result<UsuarioResponse> result = service.consultarPorFolioJpa(folio);
+    Result<UsuarioRequest> result = service.consultarPorFolioJpa(folio);
     return ResponseEntity.status(HttpStatus.OK).body(result);
   }
 

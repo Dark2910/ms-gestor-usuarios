@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class UsuarioResponse {
+public class UsuarioRequest {
 
   @JsonProperty("idUsuario")
   private Integer idUsuario;

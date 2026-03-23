@@ -1,9 +1,11 @@
 package com.eespindola.cafeteria.gestor.usuarios.service.impl;
 
+import com.eespindola.cafeteria.gestor.usuarios.annotations.AroundMapperAop;
 import com.eespindola.cafeteria.gestor.usuarios.dao.repository.UsuarioRepository;
 import com.eespindola.cafeteria.gestor.usuarios.exception.impl.Error404;
 import com.eespindola.cafeteria.gestor.usuarios.mapper.UsuarioMapper;
-import com.eespindola.cafeteria.gestor.usuarios.model.UsuarioResponse;
+import com.eespindola.cafeteria.gestor.usuarios.model.EntryRequest;
+import com.eespindola.cafeteria.gestor.usuarios.model.UsuarioRequest;
 import com.eespindola.cafeteria.gestor.usuarios.model.Result;
 import com.eespindola.cafeteria.gestor.usuarios.model.dto.UsuarioDto;
 import com.eespindola.cafeteria.gestor.usuarios.service.UsuarioService;
@@ -32,55 +34,65 @@ public class UsuarioServiceImpl implements UsuarioService {
   }
 
   @Override
-  public Result<UsuarioResponse> consultarUsuarios() {
+  public Result<UsuarioRequest> consultarUsuarios() {
     try {
       List<UsuarioDto> usuarioDtoList = repository.getAll();
 
-      List<UsuarioResponse> usuarioResponseList = usuarioDtoList.stream()
+      List<UsuarioRequest> usuarioRequestList = usuarioDtoList.stream()
               .map(UsuarioMapper::toUsuario)
               .collect(Collectors.toCollection(ArrayList::new));
 
-      return ResultBuilder.buildSuccess(ResultBuilder.ResultConstants.SUCCESS, usuarioResponseList);
-    } catch (RuntimeException e) {
+      LOG.info("*** Consulta usuarios exitosa");
+      return ResultBuilder.buildSuccess(ResultBuilder.ResultConstants.SUCCESS, usuarioRequestList);
+    }
+    catch (RuntimeException e) {
       throw new Error404(List.of("Error al consultar usuarios"));
     }
   }
 
   @Override
-  public Result<UsuarioResponse> consultarPorFolio(String folio) {
+  public Result<UsuarioRequest> consultarPorFolio(String folio) {
     try {
       UsuarioDto usuarioDto = repository.getByFolio(folio);
 
-      UsuarioResponse usuarioResponse = UsuarioMapper.toUsuario(usuarioDto);
+      UsuarioRequest usuarioRequest = UsuarioMapper.toUsuario(usuarioDto);
 
-      return ResultBuilder.buildSuccess(ResultBuilder.ResultConstants.SUCCESS, usuarioResponse);
-    } catch (RuntimeException e) {
+      LOG.info("*** Consulta por folio exitosa");
+      return ResultBuilder.buildSuccess(ResultBuilder.ResultConstants.SUCCESS, usuarioRequest);
+    }
+    catch (RuntimeException e) {
       throw new Error404(List.of("Error al consultar usuario"));
     }
   }
 
+  @AroundMapperAop
   @Override
-  public Result<Void> agregarUsuario(UsuarioResponse usuarioResponse) {
+  public Result<Void> agregarUsuario(String request, EntryRequest<UsuarioRequest> entryRequest) {
     try {
-      UsuarioDto usuarioDto = UsuarioMapper.toUsuarioDto(usuarioResponse);
+      UsuarioDto usuarioDto = UsuarioMapper.toUsuarioDto(entryRequest.getRequest());
 
       repository.addUsuario(usuarioDto);
 
+      LOG.info("*** Usuario insertado");
       return ResultBuilder.buildSuccess("Usuario insertado", null);
-    } catch (RuntimeException e) {
+    }
+    catch (RuntimeException e) {
       throw new Error404(List.of("Error al agregar usuario"));
     }
   }
 
+  @AroundMapperAop
   @Override
-  public Result<Void> actualizarUsuario(UsuarioResponse usuarioResponse) {
+  public Result<Void> actualizarUsuario(String request, EntryRequest<UsuarioRequest> entryRequest) {
     try {
-      UsuarioDto usuarioDto = UsuarioMapper.toUsuarioDto(usuarioResponse);
+      UsuarioDto usuarioDto = UsuarioMapper.toUsuarioDto(entryRequest.getRequest());
 
       repository.updateUsuario(usuarioDto);
 
+      LOG.info("*** Usuario actualizado");
       return ResultBuilder.buildSuccess("Usuario actualizado", null);
-    } catch (RuntimeException e) {
+    }
+    catch (RuntimeException e) {
       throw new Error404(List.of("Error al actualizar usuario"));
     }
   }
@@ -90,9 +102,11 @@ public class UsuarioServiceImpl implements UsuarioService {
     Number code = repository.deleteUsuario(folio);
 
     if (Objects.isNull(code) || code.intValue() == 0) {
+      LOG.info("*** Usuario no encontrado");
       throw new Error404(List.of("Usuario no encontrado"));
     }
 
+    LOG.info("*** Usuario eliminado");
     return ResultBuilder.buildSuccess("Usuario eliminado", null);
   }
 

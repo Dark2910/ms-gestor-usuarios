@@ -4,7 +4,7 @@ import com.eespindola.cafeteria.gestor.usuarios.dao.jpa.UsuarioJpa;
 import com.eespindola.cafeteria.gestor.usuarios.dao.jpa.entities.UsuarioEntity;
 import com.eespindola.cafeteria.gestor.usuarios.exception.impl.Error404;
 import com.eespindola.cafeteria.gestor.usuarios.model.Result;
-import com.eespindola.cafeteria.gestor.usuarios.model.UsuarioResponse;
+import com.eespindola.cafeteria.gestor.usuarios.model.UsuarioRequest;
 import com.eespindola.cafeteria.gestor.usuarios.service.impl.UsuarioJpaServiceImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -21,7 +21,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class UsuarioResponseJpaServiceImplTest {
+public class UsuarioRequestJpaServiceImplTest {
 
   @InjectMocks
   private UsuarioJpaServiceImpl service;
@@ -36,7 +36,7 @@ public class UsuarioResponseJpaServiceImplTest {
     makeUsuarioEntityMock(usuarioEntity);
     when(repository.findAll()).thenReturn(List.of(usuarioEntity));
     // Act
-    Result<UsuarioResponse> result = service.consultaUsuariosJpa();
+    Result<UsuarioRequest> result = service.consultaUsuariosJpa();
     // Assert
     Assertions.assertNotNull(result);
   }
@@ -63,7 +63,7 @@ public class UsuarioResponseJpaServiceImplTest {
 
     when(repository.findByFolio(anyString())).thenReturn(optionalUsuario);
     // Act
-    Result<UsuarioResponse> result = service.consultarPorFolioJpa(usuarioEntity.getFolio());
+    Result<UsuarioRequest> result = service.consultarPorFolioJpa(usuarioEntity.getFolio());
     // Assert
     Assertions.assertNotNull(result);
   }

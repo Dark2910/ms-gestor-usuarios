@@ -1,10 +1,9 @@
 package com.eespindola.cafeteria.gestor.usuarios.controller;
 
-import com.eespindola.cafeteria.gestor.usuarios.annotations.AroundAop;
+import com.eespindola.cafeteria.gestor.usuarios.model.EntryRequest;
 import com.eespindola.cafeteria.gestor.usuarios.model.Result;
-import com.eespindola.cafeteria.gestor.usuarios.model.UsuarioResponse;
+import com.eespindola.cafeteria.gestor.usuarios.model.UsuarioRequest;
 import com.eespindola.cafeteria.gestor.usuarios.service.UsuarioService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,39 +19,38 @@ public class UsuarioController {
 
   @Autowired
   UsuarioController(
-          UsuarioService usuarioService
+          UsuarioService iUsuarioService
   ) {
-    this.service = usuarioService;
+    this.service = iUsuarioService;
   }
 
-  @AroundAop
   @GetMapping("/get-all")
-  public ResponseEntity<Result<UsuarioResponse>> getAllController() {
-    Result<UsuarioResponse> result = service.consultarUsuarios();
+  public ResponseEntity<Result<UsuarioRequest>> getAllController() {
+    Result<UsuarioRequest> result = service.consultarUsuarios();
     return new ResponseEntity<>(result, HttpStatus.OK);
   }
 
   @GetMapping("/{folio}")
-  public ResponseEntity<Result<UsuarioResponse>> getByFolioController(
+  public ResponseEntity<Result<UsuarioRequest>> getByFolioController(
           @PathVariable String folio
   ) {
-    Result<UsuarioResponse> result = service.consultarPorFolio(folio);
-    return ResponseEntity.status(HttpStatus.OK).body(result);
+    Result<UsuarioRequest> result = service.consultarPorFolio(folio);
+    return ResponseEntity.ok(result);
   }
 
   @PostMapping("/add-user")
   public ResponseEntity<Result<Void>> addUsuarioController(
-          @Valid @RequestBody UsuarioResponse usuarioResponse
+          @RequestBody String addUsuarioRequest
   ) {
-    Result<Void> result = service.agregarUsuario(usuarioResponse);
+    Result<Void> result = service.agregarUsuario(addUsuarioRequest, new EntryRequest<>(new UsuarioRequest()));
     return ResponseEntity.ok(result);
   }
 
   @PutMapping("/update-user")
   public ResponseEntity<Result<Void>> updateUsuarioController(
-          @RequestBody UsuarioResponse usuarioResponse
+          @RequestBody String updateUsuarioRequest
   ) {
-    Result<Void> result = service.actualizarUsuario(usuarioResponse);
+    Result<Void> result = service.actualizarUsuario(updateUsuarioRequest, new EntryRequest<>(new UsuarioRequest()));
     return ResponseEntity.status(HttpStatus.OK).body(result);
   }
 

@@ -40,7 +40,7 @@ public class ResultBuilder {
     public static final String SUCCESS = "Operacion exitosa";
     public static final String ERROR = "Error en operacion";
 
-    private ResultConstants(){
+    private ResultConstants() {
       throw new IllegalArgumentException("Util class");
     }
   }

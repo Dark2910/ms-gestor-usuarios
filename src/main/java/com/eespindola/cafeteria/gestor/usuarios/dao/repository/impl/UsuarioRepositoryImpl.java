@@ -2,6 +2,7 @@ package com.eespindola.cafeteria.gestor.usuarios.dao.repository.impl;
 
 import com.eespindola.cafeteria.gestor.usuarios.dao.repository.UsuarioRepository;
 import com.eespindola.cafeteria.gestor.usuarios.exception.impl.Error500;
+import com.eespindola.cafeteria.gestor.usuarios.mapper.UsuarioMapper;
 import com.eespindola.cafeteria.gestor.usuarios.model.dto.UsuarioDto;
 import com.eespindola.cafeteria.gestor.usuarios.util.Constantes;
 import com.eespindola.cafeteria.gestor.usuarios.util.DataBaseUtil;
@@ -12,12 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.*;
+import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
 import java.sql.*;
 import java.sql.Date;
 import java.util.*;
@@ -30,18 +31,25 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
   private final String SCHEMA;
   private final String PACKAGE;
 
+  private final SimpleJdbcCall updateUsuarioCall;
+
   @Autowired
   UsuarioRepositoryImpl(
-//          @Qualifier(DataBaseUtil.HIKARI_CONNECTION) JdbcTemplate jdbcTemplate
-          @Qualifier(DataBaseUtil.HIKARI_DATA_SOURCE) DataSource dataSource,
+//          @Qualifier(DataBaseUtil.HIKARI_DATA_SOURCE) DataSource dataSource,
+          @Qualifier(DataBaseUtil.HIKARI_CONNECTION) JdbcTemplate jdbcTemplate,
           @Value("${oracle.usuario.schema}") String usuarioSchema,
           @Value("${oracle.usuario.package}") String usuarioPackage
   ) {
-//    this.jdbcTemplate = jdbcTemplate;
-    this.jdbcTemplate = new JdbcTemplate(dataSource);
+//    this.jdbcTemplate = new JdbcTemplate(dataSource);
+    this.jdbcTemplate = jdbcTemplate;
     this.SCHEMA = usuarioSchema;
     this.PACKAGE = usuarioPackage;
+
+    updateUsuarioCall = new SimpleJdbcCall(jdbcTemplate);
+    prepareUpdate(updateUsuarioCall);
   }
+
+  // GetAll
 
   @Override
   public List<UsuarioDto> getAll() {
@@ -54,38 +62,33 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
 
         callableStatement.execute();
 
-        Integer code = callableStatement.getInt("pCodigo");
-        String message = callableStatement.getString("pMensaje");
-
         List<UsuarioDto> usuarioDtoList = new LinkedList<>();
         UsuarioDto usuarioDto;
 
-        try(ResultSet resultSet = (ResultSet) callableStatement.getObject("pCursor")){
-          while (resultSet.next()){
-            usuarioDto = UsuarioDto.builder()
-                    .folioId(resultSet.getString("FOLIO"))
-                    .nombre(resultSet.getString("NOMBRE"))
-                    .apellidoPaterno(resultSet.getString("APELLIDOPATERNO"))
-                    .apellidoMaterno(resultSet.getString("APELLIDOMATERNO"))
-                    .fechaNacimiento(resultSet.getDate("FECHANACIMIENTO").toLocalDate())
-                    .username(resultSet.getString("USERNAME"))
-                    .email(resultSet.getString("EMAIL"))
-                    .password(resultSet.getString("PASSWORD"))
-                    .status(resultSet.getString("STATUS"))
-                    .build();
+        try (ResultSet resultSet = (ResultSet) callableStatement.getObject("pCursor")) {
+          while (resultSet.next()) {
+            usuarioDto = UsuarioMapper.mapRow(resultSet);
             usuarioDtoList.add(usuarioDto);
           }
         }
+
+        Integer code = callableStatement.getInt("pCodigo");
+        String message = callableStatement.getString("pMensaje");
+        handleDbResponse(code, message);
         return usuarioDtoList;
       });
-    } catch (Throwable e) {
+    }
+    catch (Throwable e) {
+      LOG.info("*** Error repository getAll: ", e);
       throw new Error500(List.of("Error al consultar usuarios."));
     }
   }
 
+  // GetByFolio
+
   @Override
   public UsuarioDto getByFolio(String folio) {
-    final String QUERY = DataBaseUtil.generateSpCall(SCHEMA, PACKAGE,Constantes.SP_GET_BY_FOLIO, 4);
+    final String QUERY = DataBaseUtil.generateSpCall(SCHEMA, PACKAGE, Constantes.SP_GET_BY_FOLIO, 4);
     try {
       return jdbcTemplate.execute(QUERY, (CallableStatementCallback<UsuarioDto>) callableStatement -> {
         callableStatement.setString(1, folio);
@@ -95,38 +98,33 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
 
         callableStatement.execute();
 
-        Integer code = callableStatement.getInt(2);
-        String message = callableStatement.getString(3);
-
         UsuarioDto usuarioDto = new UsuarioDto();
 
         try (ResultSet resultSet = (ResultSet) callableStatement.getObject(4)) {
           if (resultSet.next()) {
-            usuarioDto = UsuarioDto.builder()
-                    .folioId(resultSet.getString("FOLIO"))
-                    .nombre(resultSet.getString("NOMBRE"))
-                    .apellidoPaterno(resultSet.getString("APELLIDOPATERNO"))
-                    .apellidoMaterno(resultSet.getString("APELLIDOMATERNO"))
-                    .fechaNacimiento(resultSet.getDate("FECHANACIMIENTO").toLocalDate())
-                    .username(resultSet.getString("USERNAME"))
-                    .email(resultSet.getString("EMAIL"))
-                    .password(resultSet.getString("PASSWORD"))
-                    .status(resultSet.getString("STATUS"))
-                    .build();
+            usuarioDto = UsuarioMapper.mapRow(resultSet);
           }
         }
+
+        Integer code = callableStatement.getInt(2);
+        String message = callableStatement.getString(3);
+        handleDbResponse(code, message);
         return usuarioDto;
       });
-    } catch (Throwable e) {
+    }
+    catch (Throwable e) {
+      LOG.info("*** Error repository getByFolio: ", e);
       throw new Error500(List.of("Error al consultar usuario."));
     }
   }
 
+  // Add
+
   @Override
   public void addUsuario(UsuarioDto usuarioDto) {
     final String QUERY = DataBaseUtil.generateSpCall(SCHEMA, PACKAGE, Constantes.SP_INSERT, 9);
-    try{
-      jdbcTemplate.execute(QUERY, (CallableStatementCallback<Integer>) callableStatement ->{
+    try {
+      jdbcTemplate.execute(QUERY, (CallableStatementCallback<Void>) callableStatement -> {
 
         callableStatement.setString(1, usuarioDto.getNombre());
         callableStatement.setString(2, usuarioDto.getApellidoPaterno());
@@ -143,52 +141,72 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
 
         Integer code = callableStatement.getInt(8);
         String message = callableStatement.getString(9);
-
-        System.out.println("Código: " + code + ", Mensaje: " + message);
-        return code;
+        handleDbResponse(code, message);
+        return null;
       });
-    }catch (Throwable e){
+    }
+    catch (Throwable e) {
+      LOG.info("*** Error repository addUsuario: ", e);
       throw new Error500(List.of("Error al insertar en DB"));
     }
   }
+
+  // Update
 
   @Override
   public void updateUsuario(UsuarioDto usuarioDto) {
-    final String QUERY = "EESPINDOLAORQUESTADOR.PKG_USUARIO.SP_UsuarioUpdate";
     try {
-      SimpleJdbcCall simpleJdbcCall = new SimpleJdbcCall(jdbcTemplate)
-              .withProcedureName(QUERY)
-              .declareParameters(
-                      new SqlParameter("pFolio", Types.NUMERIC),
-                      new SqlParameter("pNombre", Types.VARCHAR),
-                      new SqlParameter("pApellidoPaterno", Types.VARCHAR),
-                      new SqlParameter("pApellidoMaterno", Types.VARCHAR),
-                      new SqlParameter("pFechaNacimiento", Types.DATE),
-                      new SqlParameter("pUsername", Types.VARCHAR),
-                      new SqlParameter("pEmail", Types.VARCHAR),
-                      new SqlParameter("pPassword", Types.VARCHAR),
-                      new SqlParameter("pStatus", Types.NUMERIC),
-                      new SqlOutParameter("PRESULTADO", Types.NUMERIC)
-              );
+      SqlParameterSource params = prepareUpdateParams(usuarioDto);
 
-      SqlParameterSource params = new MapSqlParameterSource()
-              .addValue("pFolio", usuarioDto.getFolioId())
-              .addValue("pNombre", usuarioDto.getNombre())
-              .addValue("pApellidoPaterno", usuarioDto.getApellidoPaterno())
-              .addValue("pApellidoMaterno", usuarioDto.getApellidoMaterno())
-              .addValue("pFechaNacimiento", usuarioDto.getFechaNacimiento())
-              .addValue("pUsername", usuarioDto.getUsername())
-              .addValue("pEmail", usuarioDto.getEmail())
-              .addValue("pPassword", usuarioDto.getPassword())
-              .addValue("pStatus", usuarioDto.getStatus());
+      Map<String, Object> outParams = updateUsuarioCall.execute(params);
 
-      Map<String, Object> outParams = simpleJdbcCall.execute(params);
-      Number resultado = (Number) outParams.get("PRESULTADO");
-
-    } catch (Throwable e) {
+      Integer code = ((Number) outParams.get("pCodigo")).intValue();
+      String message = outParams.get("pMensaje").toString();
+      handleDbResponse(code, message);
+    }
+    catch (Throwable e) {
+      LOG.info("*** Error repository updateUsuario: ", e);
       throw new Error500(List.of("Error al insertar en DB"));
     }
   }
+
+  private SqlParameterSource prepareUpdateParams(UsuarioDto usuarioDto) {
+    return new MapSqlParameterSource()
+            .addValue("pFolio", usuarioDto.getFolioId())
+            .addValue("pNombre", usuarioDto.getNombre())
+            .addValue("pApellidoPaterno", usuarioDto.getApellidoPaterno())
+            .addValue("pApellidoMaterno", usuarioDto.getApellidoMaterno())
+            .addValue("pFechaNacimiento", usuarioDto.getFechaNacimiento())
+            .addValue("pUsername", usuarioDto.getUsername())
+            .addValue("pEmail", usuarioDto.getEmail())
+            .addValue("pPassword", usuarioDto.getPassword())
+            .addValue("pStatus", usuarioDto.getStatus());
+  }
+
+  private void prepareUpdate(SimpleJdbcCall simpleJdbcCall) {
+    simpleJdbcCall
+            .withSchemaName(SCHEMA)
+            .withCatalogName(PACKAGE)
+            .withProcedureName(Constantes.SP_UPDATE)
+            .withoutProcedureColumnMetaDataAccess() // Desactivar consulta automática de metadatos
+            .declareParameters(
+                    new SqlParameter("pFolio", Types.VARCHAR),
+                    new SqlParameter("pNombre", Types.VARCHAR),
+                    new SqlParameter("pApellidoPaterno", Types.VARCHAR),
+                    new SqlParameter("pApellidoMaterno", Types.VARCHAR),
+                    new SqlParameter("pFechaNacimiento", Types.DATE),
+                    new SqlParameter("pUsername", Types.VARCHAR),
+                    new SqlParameter("pEmail", Types.VARCHAR),
+                    new SqlParameter("pPassword", Types.VARCHAR),
+                    new SqlParameter("pStatus", Types.VARCHAR),
+
+                    new SqlOutParameter("pCodigo", Types.NUMERIC),
+                    new SqlOutParameter("pMensaje", Types.VARCHAR)
+            );
+    simpleJdbcCall.compile();
+  }
+
+  // Delete
 
   @Override
   public Number deleteUsuario(String folio) {
@@ -205,12 +223,19 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
 
         Integer code = callableStatement.getInt(2);
         String message = callableStatement.getString(3);
+        handleDbResponse(code, message);
 
         return code;
-      }catch (Throwable e){
+      }
+      catch (Throwable e) {
+        LOG.info("*** Error repository deleteUsuario: ", e);
         throw new Error500(List.of("Error al eliminar usuario en DB"));
       }
     });
+  }
+
+  private void handleDbResponse(Integer code, String message) {
+    LOG.info("*** BD Response: code: {}, message: {}", code, message);
   }
 
 }

@@ -5,6 +5,8 @@ import com.eespindola.cafeteria.gestor.usuarios.exception.impl.*;
 import com.eespindola.cafeteria.gestor.usuarios.model.Result;
 import com.eespindola.cafeteria.gestor.usuarios.telegram.bot.event.UsuarioEvent;
 import com.eespindola.cafeteria.gestor.usuarios.util.ResultBuilder;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -13,16 +15,16 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class ExceptionController {
   private final ApplicationEventPublisher publisher;
 
   @Autowired
-  ExceptionController(
-          ApplicationEventPublisher eventPublisher
-  ){
+  ExceptionController(ApplicationEventPublisher eventPublisher) {
     this.publisher = eventPublisher;
   }
 
@@ -31,23 +33,37 @@ public class ExceptionController {
     ErrorEnum errorEnum = ErrorEnum.getEnum(exception.getErrorCode());
 
     publisher.publishEvent(new UsuarioEvent(errorEnum.getMessage(), exception.getDescription()));
-    return ResponseEntity
-            .status(errorEnum.getStatus())
-            .body(ResultBuilder.buildError(errorEnum.getMessage(), exception.getErrorCode(), exception.getDescription()));
+    return ResponseEntity.status(errorEnum.getStatus())
+            .body(ResultBuilder.buildError(errorEnum.getMessage(), exception.getErrorCode(),
+                                           exception.getDescription()));
   }
 
-  // Validation
+  // Validation Controller obj
   @ExceptionHandler(MethodArgumentNotValidException.class)
   private ResponseEntity<Result<String>> errorRequestController(MethodArgumentNotValidException e) {
 
     List<String> errorList = e.getBindingResult().getFieldErrors().stream()
             .map(DefaultMessageSourceResolvable::getDefaultMessage)
-            .toList();
+            .collect(Collectors.toCollection(ArrayList::new));
 
     publisher.publishEvent(new UsuarioEvent(ErrorEnum.ERROR_400.getMessage(), errorList));
-    return ResponseEntity
-            .status(ErrorEnum.ERROR_400.getStatus())
-            .body(ResultBuilder.buildError(ErrorEnum.ERROR_400.getMessage(), ErrorEnum.ERROR_400.getErrorCode(), errorList));
+    return ResponseEntity.status(ErrorEnum.ERROR_400.getStatus())
+            .body(ResultBuilder.buildError(ErrorEnum.ERROR_400.getMessage(), ErrorEnum.ERROR_400.getErrorCode(),
+                                           errorList));
+  }
+
+  // Validation Controller String
+  @ExceptionHandler(ConstraintViolationException.class)
+  private ResponseEntity<Result<String>> errorRequestController(ConstraintViolationException e) {
+
+    List<String> errorList = e.getConstraintViolations().stream()
+            .map(ConstraintViolation::getMessage)
+            .collect(Collectors.toCollection(ArrayList::new));
+
+    publisher.publishEvent(new UsuarioEvent(ErrorEnum.ERROR_400.getMessage(), errorList));
+    return ResponseEntity.status(ErrorEnum.ERROR_400.getStatus())
+            .body(ResultBuilder.buildError(ErrorEnum.ERROR_400.getMessage(), ErrorEnum.ERROR_400.getErrorCode(),
+                                           errorList));
   }
 
 }

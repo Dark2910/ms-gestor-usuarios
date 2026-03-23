@@ -1,31 +1,33 @@
 package com.eespindola.cafeteria.gestor.usuarios.mapper;
 
-import com.eespindola.cafeteria.gestor.usuarios.model.UsuarioResponse;
+import com.eespindola.cafeteria.gestor.usuarios.model.UsuarioRequest;
 import com.eespindola.cafeteria.gestor.usuarios.model.dto.UsuarioDto;
 import com.eespindola.cafeteria.gestor.usuarios.util.FechasUtil;
+import org.springframework.jdbc.core.RowMapper;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class UsuarioMapper {
 
 //public class UsuarioMapper implements RowMapper<UsuarioDto> {
-//
-//  @Override
-//  public UsuarioDto mapRow(ResultSet rs, int rowNum) throws SQLException {
-//    return UsuarioDto.builder()
-//            .idUsuario(rs.getInt(1))
-//            .folioId(rs.getString(2))
-//            .nombre(rs.getString(3))
-//            .apellidoPaterno(rs.getString(4))
-//            .apellidoMaterno(rs.getString(5))
-//            .fechaNacimiento(FechasUtil.toString(FechasUtil.FORMAT_1, rs.getDate(6)))
-//            .username(rs.getString(7))
-//            .email(rs.getString(8))
-//            .password(rs.getString(9))
-//            .status(rs.getString(10))
-//            .build();
-//  }
 
-  public static UsuarioResponse toUsuario(UsuarioDto usuarioDto) {
-    return UsuarioResponse.builder()
+  public static UsuarioDto mapRow(ResultSet rs) throws SQLException {
+    return UsuarioDto.builder()
+            .folioId(rs.getString("FOLIO"))
+            .nombre(rs.getString("NOMBRE"))
+            .apellidoPaterno(rs.getString("APELLIDOPATERNO"))
+            .apellidoMaterno(rs.getString("APELLIDOMATERNO"))
+            .fechaNacimiento(rs.getDate("FECHANACIMIENTO").toLocalDate())
+            .username(rs.getString("USERNAME"))
+            .email(rs.getString("EMAIL"))
+            .password(rs.getString("PASSWORD"))
+            .status(rs.getString("STATUS"))
+            .build();
+  }
+
+  public static UsuarioRequest toUsuario(UsuarioDto usuarioDto) {
+    return UsuarioRequest.builder()
             .idUsuario(usuarioDto.getIdUsuario())
             .folioId(usuarioDto.getFolioId())
             .nombre(usuarioDto.getNombre())
@@ -39,22 +41,22 @@ public class UsuarioMapper {
             .build();
   }
 
-  public static UsuarioDto toUsuarioDto(UsuarioResponse usuarioResponse) {
+  public static UsuarioDto toUsuarioDto(UsuarioRequest usuarioRequest) {
     return UsuarioDto.builder()
-            .idUsuario(usuarioResponse.getIdUsuario())
-            .folioId(usuarioResponse.getFolioId())
-            .nombre(usuarioResponse.getNombre())
-            .apellidoPaterno(usuarioResponse.getApellidoPaterno())
-            .apellidoMaterno(usuarioResponse.getApellidoMaterno())
-            .fechaNacimiento(FechasUtil.toLocalDate(FechasUtil.FORMAT_1, usuarioResponse.getFechaNacimiento()))
-            .username(usuarioResponse.getUsername())
-            .email(usuarioResponse.getEmail())
-            .password(usuarioResponse.getPassword())
-            .status(usuarioResponse.getStatus())
+            .idUsuario(usuarioRequest.getIdUsuario())
+            .folioId(usuarioRequest.getFolioId())
+            .nombre(usuarioRequest.getNombre())
+            .apellidoPaterno(usuarioRequest.getApellidoPaterno())
+            .apellidoMaterno(usuarioRequest.getApellidoMaterno())
+            .fechaNacimiento(FechasUtil.toLocalDate(FechasUtil.FORMAT_1, usuarioRequest.getFechaNacimiento()))
+            .username(usuarioRequest.getUsername())
+            .email(usuarioRequest.getEmail())
+            .password(usuarioRequest.getPassword())
+            .status(usuarioRequest.getStatus())
             .build();
   }
 
-  private UsuarioMapper(){
+  private UsuarioMapper() {
     throw new IllegalArgumentException("Util class");
   }
 

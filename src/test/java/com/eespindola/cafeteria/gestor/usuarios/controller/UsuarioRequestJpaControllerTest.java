@@ -1,7 +1,7 @@
 package com.eespindola.cafeteria.gestor.usuarios.controller;
 
 import com.eespindola.cafeteria.gestor.usuarios.model.Result;
-import com.eespindola.cafeteria.gestor.usuarios.model.UsuarioResponse;
+import com.eespindola.cafeteria.gestor.usuarios.model.UsuarioRequest;
 import com.eespindola.cafeteria.gestor.usuarios.service.UsuarioJpaService;
 import com.eespindola.cafeteria.gestor.usuarios.util.ResultBuilder;
 import org.junit.jupiter.api.Assertions;
@@ -18,7 +18,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class UsuarioResponseJpaControllerTest {
+class UsuarioRequestJpaControllerTest {
 
   @InjectMocks
   private UsuarioJpaController controller;
@@ -29,14 +29,14 @@ class UsuarioResponseJpaControllerTest {
   @Test
   void getAllJpaController() {
     // Arrange
-    Result<UsuarioResponse> result =
+    Result<UsuarioRequest> result =
             ResultBuilder.buildSuccess(
                     ResultBuilder.ResultConstants.SUCCESS,
-                    List.of(new UsuarioResponse())
+                    List.of(new UsuarioRequest())
             );
     when(service.consultaUsuariosJpa()).thenReturn(result);
     // Act
-    ResponseEntity<Result<UsuarioResponse>> response = controller.getAllJpaController();
+    ResponseEntity<Result<UsuarioRequest>> response = controller.getAllJpaController();
     // Assert
     Assertions.assertNotNull(response);
   }
@@ -44,14 +44,14 @@ class UsuarioResponseJpaControllerTest {
   @Test
   void getByFolioJpaControllerTest() {
     // Arrange
-    Result<UsuarioResponse> result =
+    Result<UsuarioRequest> result =
             ResultBuilder.buildSuccess(
                     ResultBuilder.ResultConstants.SUCCESS,
-                    List.of(new UsuarioResponse())
+                    List.of(new UsuarioRequest())
             );
     when(service.consultarPorFolioJpa(anyString())).thenReturn(result);
     // Act
-    ResponseEntity<Result<UsuarioResponse>> response = controller.getByFolioJpaController("");
+    ResponseEntity<Result<UsuarioRequest>> response = controller.getByFolioJpaController("");
     // Assert
     Assertions.assertNotNull(response);
   }

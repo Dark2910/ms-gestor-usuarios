@@ -14,12 +14,12 @@ public class UsuarioListener {
   @Autowired
   UsuarioListener(
           TelegramService telegramService
-  ){
+  ) {
     this.service = telegramService;
   }
 
   @EventListener
-  public void telegramListener(UsuarioEvent event){
+  public void telegramListener(UsuarioEvent event) {
     service.sendMessage(event);
   }
 

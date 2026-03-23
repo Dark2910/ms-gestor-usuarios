@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,16 +24,13 @@ public class TelegramServiceImpl implements TelegramService {
   private final String BASEPATH;
 
   @Autowired
-  TelegramServiceImpl(
-          @Value("${telegram.bot.basePath}") String telegramBotBasePath
-  ) {
+  TelegramServiceImpl(@Value("${telegram.bot.basePath}") String telegramBotBasePath) {
     this.webClient = WebClient.builder().build();
     this.BASEPATH = telegramBotBasePath;
   }
 
   @Override
   public void sendMessage(UsuarioEvent event) {
-
     String telegramUri = BASEPATH + Constantes.ENDPOINT_SEND_MESSAGE;
 
     Map<String, String> telegramRequest = new HashMap<>();
@@ -43,6 +41,8 @@ public class TelegramServiceImpl implements TelegramService {
             .bodyValue(telegramRequest)
             .retrieve()
             .bodyToMono(String.class)
+            .doOnError(e -> LOG.error("*** Error al mandar mensaje: {}", e.getMessage()))
+            .onErrorResume(e -> Mono.empty()) // No subir log general
             .subscribe(); // peticion asincrona
 //            .block(); // Peticion sincrona
   }
