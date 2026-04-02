@@ -7,9 +7,13 @@ import java.util.List;
 public interface UsuarioRepository {
 
   List<UsuarioDto> getAll();
+
   UsuarioDto getByFolio(String folio);
+
   void addUsuario(UsuarioDto usuarioDto);
+
   void updateUsuario(UsuarioDto usuarioDto);
-  Number deleteUsuario(String folio);
+
+  void deleteUsuario(String folio);
 
 }

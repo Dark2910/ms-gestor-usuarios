@@ -9,7 +9,7 @@ public class FolioGenerator {
 
   private static final String FOLIO_FORMAT = "yyyyMMddHHmmss";
   private static final Random RANDOM = new Random();
-  private static final int RANDOM_DIGITS = 16;
+  private static final int RANDOM_DIGITS = 6;
 
   public static String getFolio() {
 

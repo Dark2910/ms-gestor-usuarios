@@ -2,6 +2,7 @@ package com.eespindola.cafeteria.gestor.usuarios.service;
 
 import com.eespindola.cafeteria.gestor.usuarios.dao.repository.UsuarioRepository;
 import com.eespindola.cafeteria.gestor.usuarios.exception.impl.Error404;
+import com.eespindola.cafeteria.gestor.usuarios.model.EntryRequest;
 import com.eespindola.cafeteria.gestor.usuarios.model.Result;
 import com.eespindola.cafeteria.gestor.usuarios.model.UsuarioRequest;
 import com.eespindola.cafeteria.gestor.usuarios.model.dto.UsuarioDto;
@@ -51,7 +52,7 @@ public class UsuarioRequestServiceImplTest {
       service.consultarUsuarios();
     });
     // Assert
-    Assertions.assertEquals("Error al consultar usuarios", error404.getDescription().getFirst());
+    Assertions.assertEquals("Error al consultar usuarios - Business", error404.getDescription().getFirst());
   }
 
   @Test
@@ -75,20 +76,20 @@ public class UsuarioRequestServiceImplTest {
       service.consultarPorFolio("");
     });
     // Assert
-    Assertions.assertEquals("Error al consultar usuario", error404.getDescription().getFirst());
+    Assertions.assertEquals("Error al consultar usuario - Business", error404.getDescription().getFirst());
   }
 
   @Test
   void agregarUsuarioTest() {
     // Arrange
-    UsuarioRequest usuarioRequest = makeUserMock();
+//    UsuarioRequest usuarioRequest = makeUserMock();
 
     UsuarioDto usuarioDto = new UsuarioDto();
     makeUserDtoMock(usuarioDto);
 
     doNothing().when(repository).addUsuario(usuarioDto);
     // Act
-    Result<Void> result = service.agregarUsuario(usuarioRequest);
+    Result<Void> result = service.agregarUsuario("", new EntryRequest<>(makeUserMock()));
     // Assert
     Assertions.assertNotNull(result);
   }
@@ -97,7 +98,7 @@ public class UsuarioRequestServiceImplTest {
   void agregarUsuarioTest_Error() {
     // Act
     Error404 error404 = Assertions.assertThrows(Error404.class, () -> {
-      service.agregarUsuario(null);
+      service.agregarUsuario("", new EntryRequest<>(null));
     });
     // Assert
     Assertions.assertNotNull("Error al agregar usuario", error404.getDescription().getFirst());
@@ -106,14 +107,14 @@ public class UsuarioRequestServiceImplTest {
   @Test
   void actualizarUsuarioTest() {
     // Arrange
-    UsuarioRequest usuarioRequest = makeUserMock();
+//    UsuarioRequest usuarioRequest = makeUserMock();
 
     UsuarioDto usuarioDto = new UsuarioDto();
     makeUserDtoMock(usuarioDto);
 
     doNothing().when(repository).updateUsuario(usuarioDto);
     // Act
-    Result<Void> result = service.actualizarUsuario(usuarioRequest);
+    Result<Void> result = service.actualizarUsuario("", new EntryRequest<>(makeUserMock()));
     // Assert
     Assertions.assertNotNull(result);
   }
@@ -122,7 +123,7 @@ public class UsuarioRequestServiceImplTest {
   void actualizarUsuarioTest_Error() {
     // Act
     Error404 error404 = Assertions.assertThrows(Error404.class, () -> {
-      service.actualizarUsuario(null);
+      service.actualizarUsuario("", new EntryRequest<>(null));
     });
     // Assert
     Assertions.assertNotNull("Error al actualizar usuario", error404.getDescription().getFirst());
@@ -131,9 +132,9 @@ public class UsuarioRequestServiceImplTest {
   @Test
   void eliminarUsuarioTest() {
     // Arrange
-    when(repository.deleteUsuario(anyString())).thenReturn(1);
+    doNothing().when(repository).deleteUsuario(anyString());
     // Act
-    Result<Void> result = service.eliminarUsuario("");
+    Result<Void> result = service.eliminarUsuario("folioTest");
     // Assert
     Assertions.assertNotNull(result);
   }
@@ -141,11 +142,17 @@ public class UsuarioRequestServiceImplTest {
   @Test
   void eliminarUsuarioTest_Error() {
     // Act
-    Error404 error404 = Assertions.assertThrows(Error404.class, () -> {
-      service.eliminarUsuario("");
+    Error404 errorNull = Assertions.assertThrows(Error404.class, () -> {
+      service.eliminarUsuario(null);
+    });
+    Error404 errorBlank = Assertions.assertThrows(Error404.class, () -> {
+      service.eliminarUsuario("   ");
     });
     // Assert
-    Assertions.assertEquals("Usuario no encontrado", error404.getDescription().getFirst());
+    String mensajeEsperado = "Folio invalido - Business";
+    Assertions.assertEquals(mensajeEsperado, errorNull.getDescription().getFirst());
+    Assertions.assertEquals(mensajeEsperado, errorBlank.getDescription().getFirst());
+
   }
 
   private static void makeUserDtoMock(UsuarioDto usuarioDto) {

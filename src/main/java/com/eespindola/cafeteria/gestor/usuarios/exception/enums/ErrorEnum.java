@@ -23,13 +23,4 @@ public enum ErrorEnum {
     this.errorCode = errorCode;
   }
 
-  public static ErrorEnum getEnum(int errorCode) {
-    for (ErrorEnum errorEnum : values()) {
-      if (errorEnum.errorCode == errorCode) {
-        return errorEnum;
-      }
-    }
-    throw new IllegalArgumentException("Código de error desconocido: " + errorCode);
-  }
-
 }

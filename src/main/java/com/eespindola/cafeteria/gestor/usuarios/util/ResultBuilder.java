@@ -6,6 +6,9 @@ import java.util.List;
 
 public class ResultBuilder {
 
+  public static final String SUCCESS = "Operacion exitosa";
+  public static final String ERROR = "Error en operacion";
+
   public static <T> Result<T> buildSuccess(String message, T data) {
     return Result.<T>builder()
             .success(true)
@@ -29,20 +32,6 @@ public class ResultBuilder {
             .errorCode(errorCode)
             .errorDescription(errorDescription)
             .build();
-  }
-
-  private ResultBuilder() {
-    throw new IllegalArgumentException("Util class");
-  }
-
-  public static class ResultConstants {
-
-    public static final String SUCCESS = "Operacion exitosa";
-    public static final String ERROR = "Error en operacion";
-
-    private ResultConstants() {
-      throw new IllegalArgumentException("Util class");
-    }
   }
 
 }

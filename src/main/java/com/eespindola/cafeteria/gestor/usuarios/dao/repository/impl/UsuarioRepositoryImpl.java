@@ -2,6 +2,7 @@ package com.eespindola.cafeteria.gestor.usuarios.dao.repository.impl;
 
 import com.eespindola.cafeteria.gestor.usuarios.dao.repository.UsuarioRepository;
 import com.eespindola.cafeteria.gestor.usuarios.exception.impl.Error500;
+import com.eespindola.cafeteria.gestor.usuarios.exception.impl.GenericRuntimeException;
 import com.eespindola.cafeteria.gestor.usuarios.mapper.UsuarioMapper;
 import com.eespindola.cafeteria.gestor.usuarios.model.dto.UsuarioDto;
 import com.eespindola.cafeteria.gestor.usuarios.util.Constantes;
@@ -13,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.*;
-import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
@@ -26,6 +26,18 @@ import java.util.*;
 @Repository
 public class UsuarioRepositoryImpl implements UsuarioRepository {
   private static final Logger LOG = LoggerFactory.getLogger(UsuarioRepositoryImpl.class);
+
+  static final String P_FOLIO = "pFolio";
+  static final String P_NOMBRE = "pNombre";
+  static final String P_APELLIDO_PATERNO = "pApellidoPaterno";
+  static final String P_APELLIDO_MATERNO = "pApellidoMaterno";
+  static final String P_FECHA_NACIMIENTO = "pFechaNacimiento";
+  static final String P_USERNAME = "pUsername";
+  static final String P_EMAIL = "pEmail";
+  static final String P_PASSWORD = "pPassword";
+  static final String P_STATUS = "pStatus";
+  static final String P_O_CODIGO = "pCodigo";
+  static final String P_O_MENSAJE = "pMensaje";
 
   private final JdbcTemplate jdbcTemplate;
   private final String SCHEMA;
@@ -56,8 +68,8 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
     final String QUERY = DataBaseUtil.generateSpCall(SCHEMA, PACKAGE, Constantes.SP_GET_ALL, 3);
     try {
       return jdbcTemplate.execute(QUERY, (CallableStatementCallback<List<UsuarioDto>>) callableStatement -> {
-        callableStatement.registerOutParameter("pCodigo", OracleTypes.NUMERIC);
-        callableStatement.registerOutParameter("pMensaje", OracleTypes.VARCHAR);
+        callableStatement.registerOutParameter(P_O_CODIGO, OracleTypes.NUMERIC);
+        callableStatement.registerOutParameter(P_O_MENSAJE, OracleTypes.VARCHAR);
         callableStatement.registerOutParameter("pCursor", OracleTypes.CURSOR);
 
         callableStatement.execute();
@@ -72,15 +84,15 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
           }
         }
 
-        Integer code = callableStatement.getInt("pCodigo");
-        String message = callableStatement.getString("pMensaje");
+        Integer code = callableStatement.getInt(P_O_CODIGO);
+        String message = callableStatement.getString(P_O_MENSAJE);
         handleDbResponse(code, message);
         return usuarioDtoList;
       });
     }
-    catch (Throwable e) {
+    catch (GenericRuntimeException e) {
       LOG.info("*** Error repository getAll: ", e);
-      throw new Error500(List.of("Error al consultar usuarios."));
+      throw new Error500(List.of("Incidencia al consultar usuarios - DAO"));
     }
   }
 
@@ -112,9 +124,9 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
         return usuarioDto;
       });
     }
-    catch (Throwable e) {
+    catch (GenericRuntimeException e) {
       LOG.info("*** Error repository getByFolio: ", e);
-      throw new Error500(List.of("Error al consultar usuario."));
+      throw new Error500(List.of("Incidencia al consultar usuario - DAO"));
     }
   }
 
@@ -145,9 +157,9 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
         return null;
       });
     }
-    catch (Throwable e) {
+    catch (GenericRuntimeException e) {
       LOG.info("*** Error repository addUsuario: ", e);
-      throw new Error500(List.of("Error al insertar en DB"));
+      throw new Error500(List.of("Incidencia al registrar usuario - DAO"));
     }
   }
 
@@ -160,27 +172,27 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
 
       Map<String, Object> outParams = updateUsuarioCall.execute(params);
 
-      Integer code = ((Number) outParams.get("pCodigo")).intValue();
-      String message = outParams.get("pMensaje").toString();
+      Integer code = ((Number) outParams.get(P_O_CODIGO)).intValue();
+      String message = outParams.get(P_O_MENSAJE).toString();
       handleDbResponse(code, message);
     }
-    catch (Throwable e) {
+    catch (GenericRuntimeException e) {
       LOG.info("*** Error repository updateUsuario: ", e);
-      throw new Error500(List.of("Error al insertar en DB"));
+      throw new Error500(List.of("Incidencia al actualizar usuario - DAO"));
     }
   }
 
   private SqlParameterSource prepareUpdateParams(UsuarioDto usuarioDto) {
     return new MapSqlParameterSource()
-            .addValue("pFolio", usuarioDto.getFolioId())
-            .addValue("pNombre", usuarioDto.getNombre())
-            .addValue("pApellidoPaterno", usuarioDto.getApellidoPaterno())
-            .addValue("pApellidoMaterno", usuarioDto.getApellidoMaterno())
-            .addValue("pFechaNacimiento", usuarioDto.getFechaNacimiento())
-            .addValue("pUsername", usuarioDto.getUsername())
-            .addValue("pEmail", usuarioDto.getEmail())
-            .addValue("pPassword", usuarioDto.getPassword())
-            .addValue("pStatus", usuarioDto.getStatus());
+            .addValue(P_FOLIO, usuarioDto.getFolioId())
+            .addValue(P_NOMBRE, usuarioDto.getNombre())
+            .addValue(P_APELLIDO_PATERNO, usuarioDto.getApellidoPaterno())
+            .addValue(P_APELLIDO_MATERNO, usuarioDto.getApellidoMaterno())
+            .addValue(P_FECHA_NACIMIENTO, usuarioDto.getFechaNacimiento())
+            .addValue(P_USERNAME, usuarioDto.getUsername())
+            .addValue(P_EMAIL, usuarioDto.getEmail())
+            .addValue(P_PASSWORD, usuarioDto.getPassword())
+            .addValue(P_STATUS, usuarioDto.getStatus());
   }
 
   private void prepareUpdate(SimpleJdbcCall simpleJdbcCall) {
@@ -190,18 +202,18 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
             .withProcedureName(Constantes.SP_UPDATE)
             .withoutProcedureColumnMetaDataAccess() // Desactivar consulta automática de metadatos
             .declareParameters(
-                    new SqlParameter("pFolio", Types.VARCHAR),
-                    new SqlParameter("pNombre", Types.VARCHAR),
-                    new SqlParameter("pApellidoPaterno", Types.VARCHAR),
-                    new SqlParameter("pApellidoMaterno", Types.VARCHAR),
-                    new SqlParameter("pFechaNacimiento", Types.DATE),
-                    new SqlParameter("pUsername", Types.VARCHAR),
-                    new SqlParameter("pEmail", Types.VARCHAR),
-                    new SqlParameter("pPassword", Types.VARCHAR),
-                    new SqlParameter("pStatus", Types.VARCHAR),
+                    new SqlParameter(P_FOLIO, Types.VARCHAR),
+                    new SqlParameter(P_NOMBRE, Types.VARCHAR),
+                    new SqlParameter(P_APELLIDO_PATERNO, Types.VARCHAR),
+                    new SqlParameter(P_APELLIDO_MATERNO, Types.VARCHAR),
+                    new SqlParameter(P_FECHA_NACIMIENTO, Types.DATE),
+                    new SqlParameter(P_USERNAME, Types.VARCHAR),
+                    new SqlParameter(P_EMAIL, Types.VARCHAR),
+                    new SqlParameter(P_PASSWORD, Types.VARCHAR),
+                    new SqlParameter(P_STATUS, Types.VARCHAR),
 
-                    new SqlOutParameter("pCodigo", Types.NUMERIC),
-                    new SqlOutParameter("pMensaje", Types.VARCHAR)
+                    new SqlOutParameter(P_O_CODIGO, Types.NUMERIC),
+                    new SqlOutParameter(P_O_MENSAJE, Types.VARCHAR)
             );
     simpleJdbcCall.compile();
   }
@@ -209,10 +221,10 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
   // Delete
 
   @Override
-  public Number deleteUsuario(String folio) {
+  public void deleteUsuario(String folio) {
     final String QUERY = DataBaseUtil.generateSpCall(SCHEMA, PACKAGE, Constantes.SP_DELETE, 3);
 
-    return jdbcTemplate.execute((Connection cnn) -> {
+    jdbcTemplate.execute((Connection cnn) -> {
 //      try (OracleCallableStatement callableStatement = cnn.prepareCall(QUERY).unwrap(OracleCallableStatement.class)) {
       try (CallableStatement callableStatement = cnn.prepareCall(QUERY)) {
         callableStatement.setString(1, folio);
@@ -225,11 +237,11 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
         String message = callableStatement.getString(3);
         handleDbResponse(code, message);
 
-        return code;
+        return null;
       }
-      catch (Throwable e) {
+      catch (GenericRuntimeException e) {
         LOG.info("*** Error repository deleteUsuario: ", e);
-        throw new Error500(List.of("Error al eliminar usuario en DB"));
+        throw new Error500(List.of("Incidencia al eliminar usuario - DAO"));
       }
     });
   }

@@ -40,9 +40,11 @@ public class UsuarioJpaServiceImpl implements UsuarioJpaService {
               .map(UsuarioJpaMapper::toUsuario)
               .collect(Collectors.toCollection(ArrayList::new));
 
+      LOG.info("*** Consulta usuarios exitosa");
       return ResultBuilder.buildSuccess("Usuarios consultados", usuarioRequestList);
-    } catch (RuntimeException e) {
-      throw new Error404(List.of("Error al consultar usuarios"));
+    }
+    catch (RuntimeException e) {
+      throw new Error404(List.of("Error al consultar usuarios - Business"));
     }
   }
 
@@ -55,9 +57,11 @@ public class UsuarioJpaServiceImpl implements UsuarioJpaService {
               .map(UsuarioJpaMapper::toUsuario)
               .collect(Collectors.toCollection(ArrayList::new)).getFirst();
 
+      LOG.info("*** Consulta por folio exitosa");
       return ResultBuilder.buildSuccess("Usuario consultado", usuarioRequest);
-    } catch (RuntimeException e) {
-      throw new Error404(List.of("Error al consultar usuario"));
+    }
+    catch (RuntimeException e) {
+      throw new Error404(List.of("Error al consultar usuario - Business"));
     }
   }
 

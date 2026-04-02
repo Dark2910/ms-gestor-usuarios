@@ -10,7 +10,7 @@ public class Constantes {
 
   public static final String ENDPOINT_SEND_MESSAGE = "/telegram/bot/send-message";
 
-  private Constantes(){
+  private Constantes() {
     throw new IllegalArgumentException("Util class");
   }
 

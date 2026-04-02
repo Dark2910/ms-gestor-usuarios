@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,10 +42,10 @@ public class UsuarioServiceImpl implements UsuarioService {
               .collect(Collectors.toCollection(ArrayList::new));
 
       LOG.info("*** Consulta usuarios exitosa");
-      return ResultBuilder.buildSuccess(ResultBuilder.ResultConstants.SUCCESS, usuarioRequestList);
+      return ResultBuilder.buildSuccess(ResultBuilder.SUCCESS, usuarioRequestList);
     }
     catch (RuntimeException e) {
-      throw new Error404(List.of("Error al consultar usuarios"));
+      throw new Error404(List.of("Error al consultar usuarios - Business"));
     }
   }
 
@@ -58,10 +57,10 @@ public class UsuarioServiceImpl implements UsuarioService {
       UsuarioRequest usuarioRequest = UsuarioMapper.toUsuario(usuarioDto);
 
       LOG.info("*** Consulta por folio exitosa");
-      return ResultBuilder.buildSuccess(ResultBuilder.ResultConstants.SUCCESS, usuarioRequest);
+      return ResultBuilder.buildSuccess(ResultBuilder.SUCCESS, usuarioRequest);
     }
     catch (RuntimeException e) {
-      throw new Error404(List.of("Error al consultar usuario"));
+      throw new Error404(List.of("Error al consultar usuario - Business"));
     }
   }
 
@@ -77,7 +76,7 @@ public class UsuarioServiceImpl implements UsuarioService {
       return ResultBuilder.buildSuccess("Usuario insertado", null);
     }
     catch (RuntimeException e) {
-      throw new Error404(List.of("Error al agregar usuario"));
+      throw new Error404(List.of("Error al agregar usuario - Business"));
     }
   }
 
@@ -93,18 +92,16 @@ public class UsuarioServiceImpl implements UsuarioService {
       return ResultBuilder.buildSuccess("Usuario actualizado", null);
     }
     catch (RuntimeException e) {
-      throw new Error404(List.of("Error al actualizar usuario"));
+      throw new Error404(List.of("Error al actualizar usuario - Business"));
     }
   }
 
   @Override
   public Result<Void> eliminarUsuario(String folio) {
-    Number code = repository.deleteUsuario(folio);
-
-    if (Objects.isNull(code) || code.intValue() == 0) {
-      LOG.info("*** Usuario no encontrado");
-      throw new Error404(List.of("Usuario no encontrado"));
+    if(folio == null || folio.trim().isBlank()){
+      throw new Error404(List.of("Folio invalido - Business"));
     }
+    repository.deleteUsuario(folio);
 
     LOG.info("*** Usuario eliminado");
     return ResultBuilder.buildSuccess("Usuario eliminado", null);

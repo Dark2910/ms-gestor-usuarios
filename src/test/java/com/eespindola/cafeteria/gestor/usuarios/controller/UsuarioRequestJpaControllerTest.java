@@ -31,7 +31,7 @@ class UsuarioRequestJpaControllerTest {
     // Arrange
     Result<UsuarioRequest> result =
             ResultBuilder.buildSuccess(
-                    ResultBuilder.ResultConstants.SUCCESS,
+                    ResultBuilder.SUCCESS,
                     List.of(new UsuarioRequest())
             );
     when(service.consultaUsuariosJpa()).thenReturn(result);
@@ -46,7 +46,7 @@ class UsuarioRequestJpaControllerTest {
     // Arrange
     Result<UsuarioRequest> result =
             ResultBuilder.buildSuccess(
-                    ResultBuilder.ResultConstants.SUCCESS,
+                    ResultBuilder.SUCCESS,
                     List.of(new UsuarioRequest())
             );
     when(service.consultarPorFolioJpa(anyString())).thenReturn(result);

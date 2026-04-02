@@ -1,5 +1,6 @@
 package com.eespindola.cafeteria.gestor.usuarios.telegram.bot.service.impl;
 
+import com.eespindola.cafeteria.gestor.usuarios.exception.enums.ErrorEnum;
 import com.eespindola.cafeteria.gestor.usuarios.telegram.bot.event.UsuarioEvent;
 import com.eespindola.cafeteria.gestor.usuarios.telegram.bot.service.TelegramService;
 import com.eespindola.cafeteria.gestor.usuarios.util.Constantes;
@@ -41,7 +42,7 @@ public class TelegramServiceImpl implements TelegramService {
             .bodyValue(telegramRequest)
             .retrieve()
             .bodyToMono(String.class)
-            .doOnError(e -> LOG.error("*** Error al mandar mensaje: {}", e.getMessage()))
+            .doOnError(e -> LOG.error("*** Error al mandar mensaje: {}", ErrorEnum.ERROR_503.getMessage()))
             .onErrorResume(e -> Mono.empty()) // No subir log general
             .subscribe(); // peticion asincrona
 //            .block(); // Peticion sincrona

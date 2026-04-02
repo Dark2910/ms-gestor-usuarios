@@ -15,7 +15,7 @@ public class EntryRequest<T> {
     this.request = request;
   }
 
-  public EntryRequest(T request){
+  public EntryRequest(T request) {
     this.request = request;
   }
 
