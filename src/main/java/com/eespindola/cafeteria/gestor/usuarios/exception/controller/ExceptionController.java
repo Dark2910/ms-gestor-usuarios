@@ -3,7 +3,7 @@ package com.eespindola.cafeteria.gestor.usuarios.exception.controller;
 import com.eespindola.cafeteria.gestor.usuarios.exception.impl.*;
 import com.eespindola.cafeteria.gestor.usuarios.model.Result;
 import com.eespindola.cafeteria.gestor.usuarios.telegram.bot.event.UsuarioEvent;
-import com.eespindola.cafeteria.gestor.usuarios.util.ResultBuilder;
+import com.eespindola.cafeteria.gestor.usuarios.util.ResultFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
@@ -26,8 +26,8 @@ public class ExceptionController {
                                               exception.getDescription()));
 
     return ResponseEntity.status(exception.getErrorEnum().getStatus())
-            .body(ResultBuilder.buildError( exception.getErrorEnum().getMessage(), exception.getErrorEnum().getErrorCode(),
-                                            exception.getDescription()));
+            .body(ResultFactory.error(exception.getErrorEnum().getMessage(), exception.getErrorEnum().getErrorCode(),
+                                      exception.getDescription()));
   }
 
   // Validation Controller obj

@@ -4,7 +4,7 @@ import com.eespindola.cafeteria.gestor.usuarios.model.EntryRequest;
 import com.eespindola.cafeteria.gestor.usuarios.model.Result;
 import com.eespindola.cafeteria.gestor.usuarios.model.UsuarioRequest;
 import com.eespindola.cafeteria.gestor.usuarios.service.UsuarioService;
-import com.eespindola.cafeteria.gestor.usuarios.util.ResultBuilder;
+import com.eespindola.cafeteria.gestor.usuarios.util.ResultFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +36,7 @@ class UsuarioRequestControllerTest {
   void getAllControllerTest() {
     // Arrange
     Result<UsuarioRequest> result =
-            ResultBuilder.buildSuccess(ResultBuilder.SUCCESS, List.of(new UsuarioRequest()));
+            ResultFactory.success(ResultFactory.SUCCESS_MSG, List.of(new UsuarioRequest()));
     when(service.consultarUsuarios()).thenReturn(result);
     // Act
     ResponseEntity<Result<UsuarioRequest>> response = controller.getAllController();
@@ -48,7 +48,7 @@ class UsuarioRequestControllerTest {
   void getByFolioControllerTest(){
     // Arrange
     Result<UsuarioRequest> result =
-            ResultBuilder.buildSuccess(ResultBuilder.SUCCESS, new UsuarioRequest());
+            ResultFactory.success(ResultFactory.SUCCESS_MSG, new UsuarioRequest());
     when(service.consultarPorFolio(anyString())).thenReturn(result);
     // Act
     ResponseEntity<Result<UsuarioRequest>> response = controller.getByFolioController("");
@@ -60,7 +60,7 @@ class UsuarioRequestControllerTest {
   void addUsuarioControllerTest(){
     // Arrange
     Result<Void> result =
-            ResultBuilder.buildSuccess(ResultBuilder.SUCCESS, null);
+            ResultFactory.success(ResultFactory.SUCCESS_MSG, null);
     when(service.agregarUsuario(anyString(), any(EntryRequest.class))).thenReturn(result);
     // Act
     ResponseEntity<Result<Void>> response = controller.addUsuarioController("");
@@ -72,7 +72,7 @@ class UsuarioRequestControllerTest {
   void updateUsuarioControllerTest(){
     // Arrange
     Result<Void> result =
-            ResultBuilder.buildSuccess(ResultBuilder.SUCCESS, null);
+            ResultFactory.success(ResultFactory.SUCCESS_MSG, null);
     when(service.actualizarUsuario(anyString(), any(EntryRequest.class))).thenReturn(result);
     // Act
     ResponseEntity<Result<Void>> response = controller.updateUsuarioController("");
@@ -84,7 +84,7 @@ class UsuarioRequestControllerTest {
   void deleteUsuarioControllerTest(){
     // Arrange
     Result<Void> result =
-            ResultBuilder.buildSuccess(ResultBuilder.SUCCESS, null);
+            ResultFactory.success(ResultFactory.SUCCESS_MSG, null);
     when(service.eliminarUsuario(anyString())).thenReturn(result);
 
     Map<String, String> request = new HashMap<>();

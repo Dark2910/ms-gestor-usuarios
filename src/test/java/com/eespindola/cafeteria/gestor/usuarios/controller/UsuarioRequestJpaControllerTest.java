@@ -3,7 +3,7 @@ package com.eespindola.cafeteria.gestor.usuarios.controller;
 import com.eespindola.cafeteria.gestor.usuarios.model.Result;
 import com.eespindola.cafeteria.gestor.usuarios.model.UsuarioRequest;
 import com.eespindola.cafeteria.gestor.usuarios.service.UsuarioJpaService;
-import com.eespindola.cafeteria.gestor.usuarios.util.ResultBuilder;
+import com.eespindola.cafeteria.gestor.usuarios.util.ResultFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,8 +30,8 @@ class UsuarioRequestJpaControllerTest {
   void getAllJpaController() {
     // Arrange
     Result<UsuarioRequest> result =
-            ResultBuilder.buildSuccess(
-                    ResultBuilder.SUCCESS,
+            ResultFactory.success(
+                    ResultFactory.SUCCESS_MSG,
                     List.of(new UsuarioRequest())
             );
     when(service.consultaUsuariosJpa()).thenReturn(result);
@@ -45,8 +45,8 @@ class UsuarioRequestJpaControllerTest {
   void getByFolioJpaControllerTest() {
     // Arrange
     Result<UsuarioRequest> result =
-            ResultBuilder.buildSuccess(
-                    ResultBuilder.SUCCESS,
+            ResultFactory.success(
+                    ResultFactory.SUCCESS_MSG,
                     List.of(new UsuarioRequest())
             );
     when(service.consultarPorFolioJpa(anyString())).thenReturn(result);

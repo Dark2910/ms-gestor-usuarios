@@ -7,7 +7,7 @@ import com.eespindola.cafeteria.gestor.usuarios.mapper.UsuarioJpaMapper;
 import com.eespindola.cafeteria.gestor.usuarios.model.UsuarioRequest;
 import com.eespindola.cafeteria.gestor.usuarios.model.Result;
 import com.eespindola.cafeteria.gestor.usuarios.service.UsuarioJpaService;
-import com.eespindola.cafeteria.gestor.usuarios.util.ResultBuilder;
+import com.eespindola.cafeteria.gestor.usuarios.util.ResultFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +41,7 @@ public class UsuarioJpaServiceImpl implements UsuarioJpaService {
               .collect(Collectors.toCollection(ArrayList::new));
 
       LOG.info("*** Consulta usuarios exitosa");
-      return ResultBuilder.buildSuccess("Usuarios consultados", usuarioRequestList);
+      return ResultFactory.success("Usuarios consultados", usuarioRequestList);
     }
     catch (RuntimeException e) {
       throw new Error404(List.of("Error al consultar usuarios - Business"));
@@ -58,7 +58,7 @@ public class UsuarioJpaServiceImpl implements UsuarioJpaService {
               .collect(Collectors.toCollection(ArrayList::new)).getFirst();
 
       LOG.info("*** Consulta por folio exitosa");
-      return ResultBuilder.buildSuccess("Usuario consultado", usuarioRequest);
+      return ResultFactory.success("Usuario consultado", usuarioRequest);
     }
     catch (RuntimeException e) {
       throw new Error404(List.of("Error al consultar usuario - Business"));

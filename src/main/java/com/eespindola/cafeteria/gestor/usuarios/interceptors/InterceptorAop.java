@@ -40,7 +40,7 @@ public class InterceptorAop<T> {
 //  private void before() {
 //  }
 
-  @Pointcut("@annotation(com.eespindola.cafeteria.gestor.usuarios.annotations.aroundMapperAop)")
+  @Pointcut("@annotation(com.eespindola.cafeteria.gestor.usuarios.annotations.AroundMapperAop)")
   private void aroundMapperAop() {
 
   }

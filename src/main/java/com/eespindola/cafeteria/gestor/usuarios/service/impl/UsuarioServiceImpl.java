@@ -9,7 +9,7 @@ import com.eespindola.cafeteria.gestor.usuarios.model.UsuarioRequest;
 import com.eespindola.cafeteria.gestor.usuarios.model.Result;
 import com.eespindola.cafeteria.gestor.usuarios.model.dto.UsuarioDto;
 import com.eespindola.cafeteria.gestor.usuarios.service.UsuarioService;
-import com.eespindola.cafeteria.gestor.usuarios.util.ResultBuilder;
+import com.eespindola.cafeteria.gestor.usuarios.util.ResultFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +42,7 @@ public class UsuarioServiceImpl implements UsuarioService {
               .collect(Collectors.toCollection(ArrayList::new));
 
       LOG.info("*** Consulta usuarios exitosa");
-      return ResultBuilder.buildSuccess(ResultBuilder.SUCCESS, usuarioRequestList);
+      return ResultFactory.success(ResultFactory.SUCCESS_MSG, usuarioRequestList);
     }
     catch (RuntimeException e) {
       throw new Error404(List.of("Error al consultar usuarios - Business"));
@@ -57,7 +57,7 @@ public class UsuarioServiceImpl implements UsuarioService {
       UsuarioRequest usuarioRequest = UsuarioMapper.toUsuario(usuarioDto);
 
       LOG.info("*** Consulta por folio exitosa");
-      return ResultBuilder.buildSuccess(ResultBuilder.SUCCESS, usuarioRequest);
+      return ResultFactory.success(ResultFactory.SUCCESS_MSG, usuarioRequest);
     }
     catch (RuntimeException e) {
       throw new Error404(List.of("Error al consultar usuario - Business"));
@@ -73,7 +73,7 @@ public class UsuarioServiceImpl implements UsuarioService {
       repository.addUsuario(usuarioDto);
 
       LOG.info("*** Usuario insertado");
-      return ResultBuilder.buildSuccess("Usuario insertado", null);
+      return ResultFactory.success("Usuario insertado", null);
     }
     catch (RuntimeException e) {
       throw new Error404(List.of("Error al agregar usuario - Business"));
@@ -89,7 +89,7 @@ public class UsuarioServiceImpl implements UsuarioService {
       repository.updateUsuario(usuarioDto);
 
       LOG.info("*** Usuario actualizado");
-      return ResultBuilder.buildSuccess("Usuario actualizado", null);
+      return ResultFactory.success("Usuario actualizado", null);
     }
     catch (RuntimeException e) {
       throw new Error404(List.of("Error al actualizar usuario - Business"));
@@ -104,7 +104,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     repository.deleteUsuario(folio);
 
     LOG.info("*** Usuario eliminado");
-    return ResultBuilder.buildSuccess("Usuario eliminado", null);
+    return ResultFactory.success("Usuario eliminado", null);
   }
 
 }
