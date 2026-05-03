@@ -23,7 +23,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class UsuarioRequestServiceImplTest {
+public class UsuarioServiceImplTest {
 
   @InjectMocks
   private UsuarioServiceImpl service;

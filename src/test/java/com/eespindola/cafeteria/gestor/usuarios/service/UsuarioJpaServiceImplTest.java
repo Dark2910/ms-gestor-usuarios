@@ -21,7 +21,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class UsuarioRequestJpaServiceImplTest {
+public class UsuarioJpaServiceImplTest {
 
   @InjectMocks
   private UsuarioJpaServiceImpl service;
@@ -50,7 +50,7 @@ public class UsuarioRequestJpaServiceImplTest {
       service.consultaUsuariosJpa();
     });
     // Assert
-    Assertions.assertEquals("Error al consultar usuarios", error404.getDescription().getFirst());
+    Assertions.assertEquals("Error al consultar usuarios - Business", error404.getDescription().getFirst());
   }
 
   @Test
@@ -78,7 +78,7 @@ public class UsuarioRequestJpaServiceImplTest {
       service.consultarPorFolioJpa(null);
     });
     // Assert
-    Assertions.assertEquals("Error al consultar usuario", error404.getDescription().getFirst());
+    Assertions.assertEquals("Error al consultar usuario - Business", error404.getDescription().getFirst());
   }
 
   private void makeUsuarioEntityMock(UsuarioEntity usuarioEntity) {

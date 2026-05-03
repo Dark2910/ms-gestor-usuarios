@@ -24,7 +24,7 @@ import static org.mockito.Mockito.when;
         UsuarioController.class,
         UsuarioService.class
 })
-class UsuarioRequestControllerTest {
+class UsuarioControllerTest {
 
   @Autowired
   private UsuarioController controller;
