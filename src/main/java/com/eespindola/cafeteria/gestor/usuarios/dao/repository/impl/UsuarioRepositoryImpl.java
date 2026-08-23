@@ -40,8 +40,8 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
   static final String P_O_MENSAJE = "pMensaje";
 
   private final JdbcTemplate jdbcTemplate;
-  private final String SCHEMA;
-  private final String PACKAGE;
+  private final String schemaDB;
+  private final String packageDB;
 
   private final SimpleJdbcCall updateUsuarioCall;
 
@@ -54,8 +54,8 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
   ) {
 //    this.jdbcTemplate = new JdbcTemplate(dataSource);
     this.jdbcTemplate = jdbcTemplate;
-    this.SCHEMA = usuarioSchema;
-    this.PACKAGE = usuarioPackage;
+    this.schemaDB = usuarioSchema;
+    this.packageDB = usuarioPackage;
 
     updateUsuarioCall = new SimpleJdbcCall(jdbcTemplate);
     prepareUpdate(updateUsuarioCall);
@@ -65,7 +65,7 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
 
   @Override
   public List<UsuarioDto> getAll() {
-    final String QUERY = DataBaseUtil.generateSpCall(SCHEMA, PACKAGE, Constantes.SP_GET_ALL, 3);
+    final String QUERY = DataBaseUtil.generateSpCall(schemaDB, packageDB, Constantes.SP_GET_ALL, 3);
     try {
       return jdbcTemplate.execute(QUERY, (CallableStatementCallback<List<UsuarioDto>>) callableStatement -> {
         callableStatement.registerOutParameter(P_O_CODIGO, OracleTypes.NUMERIC);
@@ -100,7 +100,7 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
 
   @Override
   public UsuarioDto getByFolio(String folio) {
-    final String QUERY = DataBaseUtil.generateSpCall(SCHEMA, PACKAGE, Constantes.SP_GET_BY_FOLIO, 4);
+    final String QUERY = DataBaseUtil.generateSpCall(schemaDB, packageDB, Constantes.SP_GET_BY_FOLIO, 4);
     try {
       return jdbcTemplate.execute(QUERY, (CallableStatementCallback<UsuarioDto>) callableStatement -> {
         callableStatement.setString(1, folio);
@@ -134,7 +134,7 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
 
   @Override
   public void addUsuario(UsuarioDto usuarioDto) {
-    final String QUERY = DataBaseUtil.generateSpCall(SCHEMA, PACKAGE, Constantes.SP_INSERT, 9);
+    final String QUERY = DataBaseUtil.generateSpCall(schemaDB, packageDB, Constantes.SP_INSERT, 9);
     try {
       jdbcTemplate.execute(QUERY, (CallableStatementCallback<Void>) callableStatement -> {
 
@@ -197,8 +197,8 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
 
   private void prepareUpdate(SimpleJdbcCall simpleJdbcCall) {
     simpleJdbcCall
-            .withSchemaName(SCHEMA)
-            .withCatalogName(PACKAGE)
+            .withSchemaName(schemaDB)
+            .withCatalogName(packageDB)
             .withProcedureName(Constantes.SP_UPDATE)
             .withoutProcedureColumnMetaDataAccess() // Desactivar consulta automática de metadatos
             .declareParameters(
@@ -222,7 +222,7 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
 
   @Override
   public void deleteUsuario(String folio) {
-    final String QUERY = DataBaseUtil.generateSpCall(SCHEMA, PACKAGE, Constantes.SP_DELETE, 3);
+    final String QUERY = DataBaseUtil.generateSpCall(schemaDB, packageDB, Constantes.SP_DELETE, 3);
 
     jdbcTemplate.execute((Connection cnn) -> {
 //      try (OracleCallableStatement callableStatement = cnn.prepareCall(QUERY).unwrap(OracleCallableStatement.class)) {
