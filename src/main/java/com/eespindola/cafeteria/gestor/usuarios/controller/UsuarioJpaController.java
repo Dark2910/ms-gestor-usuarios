@@ -29,7 +29,7 @@ public class UsuarioJpaController {
 
   @GetMapping("/{folio}")
   public ResponseEntity<Result<UsuarioRequest>> getByFolioJpaController(
-          @PathVariable String folio
+          @PathVariable("folio") String folio
   ) {
     Result<UsuarioRequest> result = service.consultarPorFolioJpa(folio);
     return ResponseEntity.status(HttpStatus.OK).body(result);

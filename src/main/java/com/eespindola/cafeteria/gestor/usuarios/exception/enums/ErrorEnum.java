@@ -23,4 +23,16 @@ public enum ErrorEnum {
     this.errorCode = errorCode;
   }
 
+  public HttpStatus getStatus() {
+    return status;
+  }
+
+  public String getMessage() {
+    return message;
+  }
+
+  public int getErrorCode() {
+    return errorCode;
+  }
+
 }

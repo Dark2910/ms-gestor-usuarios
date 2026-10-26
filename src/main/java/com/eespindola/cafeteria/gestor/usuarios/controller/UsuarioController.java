@@ -32,7 +32,7 @@ public class UsuarioController {
 
   @GetMapping("/{folio}")
   public ResponseEntity<Result<UsuarioRequest>> getByFolioController(
-          @PathVariable String folio
+          @PathVariable("folio") String folio
   ) {
     Result<UsuarioRequest> result = service.consultarPorFolio(folio);
     return ResponseEntity.ok(result);
