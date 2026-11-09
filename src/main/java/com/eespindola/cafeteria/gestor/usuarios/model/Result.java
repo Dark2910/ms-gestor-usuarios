@@ -5,29 +5,43 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
-//@Data
-//@Builder
-//@NoArgsConstructor
-//@AllArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
+// @Data
+// @Builder
+// @NoArgsConstructor
+// @AllArgsConstructor
+@JsonInclude(
+  JsonInclude.Include.NON_NULL
+)
 public class Result<T> {
 
-  @JsonProperty("success")
+  @JsonProperty(
+    "success"
+  )
   private Boolean success;
 
-  @JsonProperty("message")
+  @JsonProperty(
+    "message"
+  )
   private String message;
 
-  @JsonProperty("data")
+  @JsonProperty(
+    "data"
+  )
   private T data;
 
-  @JsonProperty("dataList")
+  @JsonProperty(
+    "dataList"
+  )
   private List<T> dataList;
 
-  @JsonProperty("errorCode")
+  @JsonProperty(
+    "errorCode"
+  )
   private Integer errorCode;
 
-  @JsonProperty("errorDescription")
+  @JsonProperty(
+    "errorDescription"
+  )
   private List<String> errorDescription;
 
   // ==========================================

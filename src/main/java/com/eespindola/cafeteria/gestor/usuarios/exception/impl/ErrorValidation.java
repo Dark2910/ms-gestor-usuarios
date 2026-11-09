@@ -8,7 +8,7 @@ public class ErrorValidation extends GenericRuntimeException {
 	private static final long serialVersionUID = 1L;
 
 	public ErrorValidation(List<String> description, ErrorEnum errorEnum) {
-		super(description, errorEnum);
-	}
+    super(description, errorEnum);
+  }
 
 }

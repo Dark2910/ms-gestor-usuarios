@@ -5,56 +5,95 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
-//@Data
-//@Builder
-//@NoArgsConstructor
-//@AllArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
+// @Data
+// @Builder
+// @NoArgsConstructor
+// @AllArgsConstructor
+@JsonInclude(
+  JsonInclude.Include.NON_NULL
+)
 public class UsuarioRequest {
 
-  @JsonProperty("idUsuario")
+  @JsonProperty(
+    "idUsuario"
+  )
   private Integer idUsuario;
 
-  @JsonProperty("folioId")
+  @JsonProperty(
+    "folioId"
+  )
   private String folioId;
 
-  @JsonProperty("nombre")
-  @NotBlank(message = "nombre vacio o nulo")
+  @JsonProperty(
+    "nombre"
+  )
+  @NotBlank(
+          message = "nombre vacio o nulo"
+  )
   private String nombre;
 
-  @JsonProperty("apellidoPaterno")
-  @NotBlank(message = "apellidoPaterno vacio o nulo")
+  @JsonProperty(
+    "apellidoPaterno"
+  )
+  @NotBlank(
+          message = "apellidoPaterno vacio o nulo"
+  )
   private String apellidoPaterno;
 
-  @JsonProperty("apellidoMaterno")
-  @NotBlank(message = "apellidoMaterno vacio o nulo")
+  @JsonProperty(
+    "apellidoMaterno"
+  )
+  @NotBlank(
+          message = "apellidoMaterno vacio o nulo"
+  )
   private String apellidoMaterno;
 
-  @JsonProperty("fechaNacimiento")
-  @NotBlank(message = "fechaNacimiento vacio o nulo")
+  @JsonProperty(
+    "fechaNacimiento"
+  )
+  @NotBlank(
+          message = "fechaNacimiento vacio o nulo"
+  )
   private String fechaNacimiento;
 
-  @JsonProperty("username")
-  @NotBlank(message = "username vacio o nulo")
+  @JsonProperty(
+    "username"
+  )
+  @NotBlank(
+          message = "username vacio o nulo"
+  )
   private String username;
 
-  @JsonProperty("email")
-  @NotBlank(message = "email vacio o nulo")
-  @Email(message = "email no valido")
+  @JsonProperty(
+    "email"
+  )
+  @NotBlank(
+          message = "email vacio o nulo"
+  )
+  @Email(
+          message = "email no valido"
+  )
   private String email;
 
-  @JsonProperty("password")
-  @NotBlank(message = "password vacio o nulo")
+  @JsonProperty(
+    "password"
+  )
+  @NotBlank(
+          message = "password vacio o nulo"
+  )
   private String password;
 
-  @JsonProperty("status")
+  @JsonProperty(
+    "status"
+  )
   private String status;
 
   // ==========================================
   // 2. CONSTRUCTORES
   // ==========================================
 
-  public UsuarioRequest() {}
+  public UsuarioRequest() {
+  }
 
   private UsuarioRequest(UsuarioRequestBuilder builder) {
     this.idUsuario = builder.idUsuario;
@@ -73,7 +112,7 @@ public class UsuarioRequest {
   // 3. MÉTODOS ESTÁTICOS
   // ==========================================
 
-  public static UsuarioRequestBuilder builder(){
+  public static UsuarioRequestBuilder builder() {
     return new UsuarioRequestBuilder();
   }
 
@@ -165,7 +204,7 @@ public class UsuarioRequest {
   // 5. CLASE BUILDER
   // ==========================================
 
-  public static class UsuarioRequestBuilder{
+  public static class UsuarioRequestBuilder {
 
     private Integer idUsuario;
     private String folioId;
@@ -228,7 +267,7 @@ public class UsuarioRequest {
       return this;
     }
 
-    public UsuarioRequest build(){
+    public UsuarioRequest build() {
       return new UsuarioRequest(this);
     }
   }
