@@ -5,6 +5,8 @@ import com.eespindola.cafeteria.gestor.usuarios.exception.enums.ErrorEnum;
 import java.util.List;
 
 public class Error400 extends GenericRuntimeException {
+  private static final long serialVersionUID = 1L;
+
   // Bad Request
   public Error400(List<String> description) {
     super(description, ErrorEnum.ERROR_400);

@@ -5,6 +5,8 @@ import com.eespindola.cafeteria.gestor.usuarios.exception.enums.ErrorEnum;
 import java.util.List;
 
 public class Error404 extends GenericRuntimeException {
+  private static final long serialVersionUID = 1L;
+
   // Not Found
   public Error404(List<String> description) {
     super(description, ErrorEnum.ERROR_404);

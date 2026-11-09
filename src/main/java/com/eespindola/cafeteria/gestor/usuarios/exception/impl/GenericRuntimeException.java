@@ -6,6 +6,7 @@ import com.eespindola.cafeteria.gestor.usuarios.exception.enums.ErrorEnum;
 import java.util.List;
 
 public class GenericRuntimeException extends RuntimeException implements ErrorData {
+  private static final long serialVersionUID = 1L;
 
   private final List<String> description;
   private final ErrorEnum errorEnum;
